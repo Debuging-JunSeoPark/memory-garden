@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Next.js and build output
+.next/
+out/
+dist/
+coverage/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Package manager and tooling
+.pnpm-store/
+*.tsbuildinfo
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
+# Agent-local state
+.superpowers/
+agents/logs/
+agents/memories/session.local.md
+
+# Test artifacts
+playwright-report/
+test-results/
+
