@@ -1,0 +1,35 @@
+name: 버그 신고
+description: 재현 가능한 잘못된 동작을 신고합니다.
+title: "fix: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: 실제 동작
+      description: 무엇이 잘못되었는지 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 방법
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대 동작
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 환경
+      placeholder: 브라우저, 운영체제, 커밋 또는 배포 주소
+

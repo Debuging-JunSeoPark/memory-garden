@@ -1,0 +1,21 @@
+{
+  "name": "memory-garden",
+  "version": "0.0.0",
+  "private": false,
+  "description": "A game-like 3D diary that grows memories into a personal garden.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@12.1.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:repo": "vitest run tests/repository/validate-repository.test.mjs",
+    "validate:repo": "node scripts/validate-repository.mjs",
+    "verify:repo": "pnpm test:repo && pnpm validate:repo"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

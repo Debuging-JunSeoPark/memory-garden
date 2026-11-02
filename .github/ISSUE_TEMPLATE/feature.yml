@@ -1,0 +1,34 @@
+name: 기능 제안
+description: 사용자에게 제공할 한 가지 결과를 제안합니다.
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 해결할 문제
+      description: 누가 어떤 상황에서 무엇 때문에 불편한지 설명해 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: 기대 결과
+      description: 완료 후 사용자가 할 수 있는 일을 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 완료 조건
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: 범위 밖
+      description: 이번 작업에 포함하지 않을 내용을 적어 주세요.
+
