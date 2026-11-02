@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "check-memory": {
+      "runtime": "node",
+      "script": "examples/check-memory.js",
+      "allowedArguments": [],
+      "timeoutMs": 30000
+    }
+  }
+}
+

@@ -10,6 +10,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "agent:hook": "node agents/hooks/runner.js",
     "test": "vitest run",
     "test:repo": "vitest run tests/repository/validate-repository.test.mjs",
     "validate:repo": "node scripts/validate-repository.mjs",
