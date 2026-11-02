@@ -25,3 +25,6 @@
 
 `agents/skills/<kebab-case-name>/`에 세 필수 파일을 추가합니다. 입력과 출력은 JSON Schema로 제한하고, `SKILL.md`에 읽기·쓰기 범위, 외부 부작용, 실패 상태를 적습니다. 네트워크나 파일 변경이 필요하면 대상과 이유를 구체적으로 적습니다.
 
+## 로컬 서버 에이전트 사용
+
+`agents/server-agent/.env.example`의 변수 이름을 참고하되 토큰은 셸 환경에만 설정합니다. 서버를 시작한 뒤 허용된 작업 유형만 `POST /v1/jobs`로 요청하고, 반환된 ID를 `GET /v1/jobs/:jobId`로 조회합니다. 동일 요청을 재시도할 때는 같은 `Idempotency-Key`를 사용합니다. 서버를 원격 주소에 바인딩하거나 공개 터널에 연결하지 않습니다.
