@@ -18,6 +18,6 @@
     "verify:repo": "pnpm test:repo && pnpm validate:repo"
   },
   "devDependencies": {
-    "vitest": "^3.2.4"
+    "vitest": "^5.0.5"
   }
 }
