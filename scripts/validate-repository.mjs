@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { access, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { basename, join, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
@@ -24,6 +24,26 @@ const SECRET_MARKERS = [
   'GITHUB_TOKEN',
   'PRIVATE_KEY',
 ];
+
+const MEMORY_HEADINGS = {
+  'agents/memories/repo.md': [
+    '## Product',
+    '## Preferences',
+    '## Architecture Decisions',
+    '## Repository Rules',
+    '## Security Boundaries',
+  ],
+  'agents/memories/session.md': [
+    '## Current Goal',
+    '## Completed',
+    '## In Progress',
+    '## Next',
+    '## Blockers',
+    '## Rulings',
+  ],
+};
+
+const SKILL_CONTRACT_FILES = ['SKILL.md', 'input.schema.json', 'output.schema.json'];
 
 async function exists(path) {
   try {
@@ -64,6 +84,42 @@ export async function validateRepository(root) {
     }
   } catch {
     errors.push('package.json must be valid JSON');
+  }
+
+  for (const [file, headings] of Object.entries(MEMORY_HEADINGS)) {
+    try {
+      const content = await readFile(join(repositoryRoot, file), 'utf8');
+      for (const heading of headings) {
+        if (!content.split('\n').includes(heading)) {
+          errors.push(`${file} is missing heading: ${heading}`);
+        }
+      }
+    } catch {
+      errors.push(`Missing required file: ${file}`);
+    }
+  }
+
+  try {
+    const gitignore = await readFile(join(repositoryRoot, '.gitignore'), 'utf8');
+    if (!gitignore.split('\n').includes('agents/memories/session.local.md')) {
+      errors.push('agents/memories/session.local.md must be listed in .gitignore');
+    }
+  } catch {
+    errors.push('Missing required file: .gitignore');
+  }
+
+  try {
+    const skillsRoot = join(repositoryRoot, 'agents/skills');
+    const skillEntries = await readdir(skillsRoot, { withFileTypes: true });
+    for (const entry of skillEntries.filter((item) => item.isDirectory())) {
+      for (const contractFile of SKILL_CONTRACT_FILES) {
+        if (!(await exists(join(skillsRoot, entry.name, contractFile)))) {
+          errors.push(`Skill ${entry.name} is missing contract file: ${contractFile}`);
+        }
+      }
+    }
+  } catch {
+    errors.push('Missing required directory: agents/skills');
   }
 
   let tracked = [];
@@ -107,4 +163,3 @@ async function main() {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   await main();
 }
-

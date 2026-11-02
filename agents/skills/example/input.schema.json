@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://memory-garden.local/skills/summarize-public-progress/input.schema.json",
+  "title": "SummarizePublicProgressInput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["memoryPath"],
+  "properties": {
+    "memoryPath": {
+      "type": "string",
+      "pattern": "^agents/memories/.+\\.md$"
+    }
+  }
+}
+

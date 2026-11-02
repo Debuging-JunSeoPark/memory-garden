@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://memory-garden.local/skills/summarize-public-progress/output.schema.json",
+  "title": "SummarizePublicProgressOutput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["currentGoal", "completed", "next"],
+  "properties": {
+    "currentGoal": { "type": "string", "minLength": 1 },
+    "completed": { "type": "array", "items": { "type": "string" } },
+    "next": { "type": "array", "items": { "type": "string" } }
+  }
+}
+
