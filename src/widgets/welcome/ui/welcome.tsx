@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function Welcome() {
   return (
     <>
@@ -48,12 +50,12 @@ export function Welcome() {
               <br className="hidden sm:block" />
               당신의 기억이 머물 작은 정원을 준비하고 있어요.
             </p>
-            <a
-              href="#garden-story"
+            <Link
+              href="/garden"
               className="mt-10 inline-flex items-center gap-8 rounded-full bg-ink px-7 py-4 text-sm text-paper"
             >
-              어떤 공간인가요? <span aria-hidden="true">↗</span>
-            </a>
+              정원 둘러보기 <span aria-hidden="true">↗</span>
+            </Link>
           </div>
           <div
             aria-hidden="true"
