@@ -1,0 +1,35 @@
+@import 'tailwindcss';
+
+@theme inline {
+  --color-paper: #f5f3ea;
+  --color-ink: #293e32;
+  --color-moss: #536b40;
+  --font-sans: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #d8e3bb;
+}
+
+a:focus-visible {
+  outline: 3px solid #536b40;
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
