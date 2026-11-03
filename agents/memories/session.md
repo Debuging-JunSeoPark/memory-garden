@@ -19,10 +19,11 @@ Issue #5의 앱 초기화 PR과 CI 결과를 확인하고 첫 3D 장면 작업�
 - 소스 포맷, lint, type-check, 기존 테스트 25개, 저장소 검증, 프로덕션 빌드 통과
 - lint-staged 및 commitlint 훅 구성, FSD alias import 위반 차단 확인
 - 독립 코드 리뷰 완료: 중요한 발견 사항 없음
+- 별도 새 clone에서 frozen-lockfile 설치, 타입 생성·검사, 전체 검사와 브라우저 스모크 통과
 
 ## In Progress
 
-- 앱 초기화 PR 생성 및 GitHub Actions 확인
+- 앱 초기화 PR #7 생성 완료, GitHub Actions 확인 중
 
 ## Next
 

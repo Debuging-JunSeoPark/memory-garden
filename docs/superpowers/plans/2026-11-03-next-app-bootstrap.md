@@ -48,7 +48,7 @@
 - [x] Connect format check, lint, type-check, full unit suite, build and browser smoke to CI.
 - [x] Document installation, environment requirements, FSD imports and follow-up scope.
 - [x] Run `pnpm check`, production browser smoke, frozen-lockfile install and diff review.
-- [ ] Commit and create a PR referencing Issue #5; report review requirements without bypassing branch protection.
+- [x] Commit and create a PR referencing Issue #5; report review requirements without bypassing branch protection.
 
 ## Execution Notes
 
@@ -58,3 +58,4 @@
 
 - Review: no Critical/Important findings. Raised Node minimum to 20.19.0 for locked tooling.
 - Verification: full check, 25 unit tests, 2 production browser smoke tests, FSD negative import and commitlint positive/negative checks passed.
+- Handoff: PR #7 targets main; PR #6 contains the separate reference-document change. Both require an approving GitHub review. Fresh clone verification passed.
