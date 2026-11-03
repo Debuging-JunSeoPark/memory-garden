@@ -25,6 +25,7 @@
 
 - [제품 및 저장소 설계](docs/superpowers/specs/2026-11-02-memory-garden-design.md)
 - [저장소 기반 구현 계획](docs/superpowers/plans/2026-11-02-repository-foundation.md)
+- [3D 구현 참고 자료 및 우선순위](docs/3d-references.md)
 
 세부 기여 방법과 로컬 실행 명령은 저장소 기반 작업이 완료되면서 추가됩니다.
 
