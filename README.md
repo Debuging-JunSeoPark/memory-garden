@@ -2,7 +2,7 @@
 
 기억의 정원은 작은 3D 정원을 직접 걸어 다니며 하루의 글과 사진을 기록하고, 여러 날의 기억을 골라 블로그 글 초안으로 엮는 웹 서비스입니다.
 
-현재는 제품 설계와 저장소 기반을 만드는 단계입니다. 아직 실행 가능한 애플리케이션은 포함되어 있지 않습니다.
+현재는 Next.js 애플리케이션 기반과 서비스 소개 화면을 실행할 수 있습니다. 로그인, 기록 저장, 3D 정원, AI 초안 생성은 후속 작업입니다.
 
 ## 제품 방향
 
@@ -11,7 +11,7 @@
 - 선택한 글과 이미지를 바탕으로 사실에 충실한 블로그 초안을 생성합니다.
 - 기록을 쉬어도 정원이 시들거나 사용자를 벌하지 않습니다.
 
-## 예정 기술 스택
+## 기술 스택
 
 - Next.js 16, React 19, TypeScript
 - React Three Fiber, Drei, Three.js
@@ -27,5 +27,40 @@
 - [저장소 기반 구현 계획](docs/superpowers/plans/2026-11-02-repository-foundation.md)
 - [3D 구현 참고 자료 및 우선순위](docs/3d-references.md)
 
-세부 기여 방법과 로컬 실행 명령은 저장소 기반 작업이 완료되면서 추가됩니다.
+## 로컬 실행
+
+Node.js 20.19 이상과 `packageManager`에 고정된 pnpm 12.1.0을 사용합니다. `.nvmrc`는 Node 20 계열을 선택합니다.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+[로컬 앱](http://127.0.0.1:3000)을 엽니다. 상위 저장소와 의존성이 섞이지 않도록 이 저장소의 `pnpm-workspace.yaml`과 Turbopack 루트를 유지합니다.
+
+### 환경 변수
+
+현재 소개 화면과 빌드에는 환경 변수가 필요하지 않습니다. Supabase와 AI 통합 시 `.env.example`에 필요한 이름과 설명을 추가할 예정입니다. 별도 로컬 서버 에이전트 설정은 [서버 에이전트 문서](agents/server-agent/README.md)를 참고하세요.
+
+### 검사와 프로덕션 실행
+
+```bash
+pnpm check
+pnpm exec playwright install chromium
+pnpm test:e2e
+pnpm start
+```
+
+- `pnpm check`: 소스 포맷, ESLint, 타입 생성·검사, 전체 단위 테스트, 저장소 검증, 프로덕션 빌드
+- `pnpm test:e2e`: 빌드된 앱을 별도 포트 3100에서 실행해 데스크톱·모바일 Chromium 스모크 테스트
+- `pnpm format`: `src/` 내부 파일만 포맷
+- `pnpm start`: 기본 포트 3000에서 프로덕션 앱 실행 (`pnpm build` 선행)
+
+GitHub Actions에서도 같은 검사를 수행합니다. 커밋 전에는 변경한 소스의 포맷·린트를 검사하고 커밋 메시지에 Conventional Commits를 적용합니다.
+
+## 소스 구조
+
+`src/app`은 라우팅과 조합을 담당하며 `widgets → features → entities → shared` 순서로만 의존합니다. 외부 슬라이스는 공개 `index.ts`로 가져옵니다. 예: `import { Welcome } from '@/widgets/welcome'`.
+
+아직 사용하지 않는 계층에는 설명 문서만 두며, 상태 관리와 API는 실제 기능을 구현할 때 추가합니다. 현재 소개 화면은 서버 컴포넌트로 렌더링하며 외부 폰트나 서비스 호출 없이 빌드됩니다.
 

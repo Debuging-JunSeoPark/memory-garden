@@ -7,7 +7,7 @@
   "type": "module",
   "packageManager": "pnpm@12.1.0",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "agent:hook": "node agents/hooks/runner.js",
@@ -15,9 +15,45 @@
     "test": "vitest run",
     "test:repo": "vitest run tests/repository/validate-repository.test.mjs",
     "validate:repo": "node scripts/validate-repository.mjs",
-    "verify:repo": "pnpm test:repo && pnpm validate:repo"
+    "verify:repo": "pnpm test:repo && pnpm validate:repo",
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "type-check": "next typegen && tsc --noEmit",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,md,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css,md,json}\"",
+    "test:e2e": "playwright test",
+    "check": "pnpm format:check && pnpm lint && pnpm type-check && pnpm test && pnpm validate:repo && pnpm build",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@playwright/test": "1.64.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.4.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.9.10",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "next": "16.4.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx,js,jsx}": [
+      "prettier --write",
+      "eslint --max-warnings=0"
+    ],
+    "src/**/*.{css,md,json}": "prettier --write"
   }
 }
