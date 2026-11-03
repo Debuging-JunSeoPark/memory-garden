@@ -2,7 +2,7 @@
 
 ## Current Goal
 
-Issue #8의 첫 3D 정원 미리보기를 검증하고 PR #9를 검토 가능한 상태로 마무리한다.
+완성된 첫 3D 정원 미리보기 PR #9를 검토하고 다음 제품 작업 범위를 정한다.
 
 ## Completed
 
@@ -26,11 +26,13 @@ Issue #8의 첫 3D 정원 미리보기를 검증하고 PR #9를 검토 가능한
 - 전체 품질 검사와 기존 단위 테스트 25개 통과, 데스크톱·모바일 화면 검수
 - 3D 변경 독립 리뷰 완료: Critical/Important 발견 사항 없음
 - Fuble·R3F·Drei 참고 결정과 출처를 docs/3d-implementation-notes.md에 기록
+- 새 clone에서 고정 lockfile 설치·전체 검사·브라우저 테스트 통과
+- PR #9의 GitHub Actions는 28c2e6f 커밋에서 전체 검사 통과
 
 ## In Progress
 
 - 앱 초기화 PR #7 승인 리뷰 대기 중. 최종 8b4a307 커밋의 GitHub Actions 통과
-- 첫 3D 정원 PR #9는 PR #7 브랜치를 기반으로 제출했으며 CI 결과 확인 중
+- 첫 3D 정원 PR #9는 PR #7 브랜치를 기반으로 제출했으며 검토 대기 중
 
 ## Next
 

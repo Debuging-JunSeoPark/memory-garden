@@ -46,7 +46,7 @@
 
 - [x] Record Fuble commit/paths and official R3F/Drei patterns reviewed, license decisions and remaining scope.
 - [x] Document preview route and verify reproducible build.
-- [ ] Commit and push; create a stacked PR with visual evidence and verify GitHub Actions.
+- [x] Commit and push; create a stacked PR with visual evidence and verify GitHub Actions.
 
 ## Execution Notes
 
@@ -55,3 +55,4 @@
 
 - Verification: full check and 8 production browser tests pass. The missing home→garden link failed first; normal WebGL tests also caught an unconditional fallback effect, corrected by treating fallback as inert DOM and errors through the boundary.
 - Independent review: no Critical/Important findings. Desktop 1280px and mobile 390px visual QA passed; actual device GPU testing is still future work.
+- Handoff: PR #9 is based on PR #7. Fresh clone verification passed, and GitHub Actions passed at 28c2e6f (run 41587867656). The code is ready for review; no branches were merged.
