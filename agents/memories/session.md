@@ -2,7 +2,7 @@
 
 ## Current Goal
 
-Issue #5의 앱 초기화 PR과 CI 결과를 확인하고 첫 3D 장면 작업으로 이어간다.
+오늘 구현한 앱 기반과 첫 3D 정원을 main에 통합하고 다음 제품 작업 범위를 정한다.
 
 ## Completed
 
@@ -21,14 +21,22 @@ Issue #5의 앱 초기화 PR과 CI 결과를 확인하고 첫 3D 장면 작업�
 - 독립 코드 리뷰 완료: 중요한 발견 사항 없음
 - 별도 새 clone에서 frozen-lockfile 설치, 타입 생성·검사, 전체 검사와 브라우저 스모크 통과
 - 개발 서버 응답 확인, 생성 파일은 Git에서 제외하고 개발 중 지침 자동 변경 방지
+- /garden의 첫 3D 정원, 고정 직교 카메라·조명·그림자, 정적 지도 전환 구현
+- WebGL 초기화 불가 및 실제 context loss를 포함한 브라우저 테스트 8개 통과
+- 전체 품질 검사와 기존 단위 테스트 25개 통과, 데스크톱·모바일 화면 검수
+- 3D 변경 독립 리뷰 완료: Critical/Important 발견 사항 없음
+- Fuble·R3F·Drei 참고 결정과 출처를 docs/3d-implementation-notes.md에 기록
+- 새 clone에서 고정 lockfile 설치·전체 검사·브라우저 테스트 통과
+- PR #9의 GitHub Actions는 28c2e6f 커밋에서 전체 검사 통과
+- 앱 초기화 PR #7을 main에 병합
 
 ## In Progress
 
-- 앱 초기화 PR #7에 main의 참고 문서를 반영하고 최종 검사 후 병합
+- 첫 3D 정원 PR #9에 main을 통합하고 최종 검사 후 병합한다. 최종 병합 결과는 GitHub PR #9 상태를 확인한다.
 
 ## Next
 
-- PR #7 병합 후 첫 3D 정원 PR #9의 base를 main으로 정리하고 병합
+- 캐릭터 이동·보행 경계와 기억 오브젝트 상호작용을 별도 범위로 설계
 - 기억 작성 및 달력 흐름의 첫 세로 슬라이스 구현
 
 ## Blockers
