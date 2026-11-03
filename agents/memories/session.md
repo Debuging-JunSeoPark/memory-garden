@@ -20,14 +20,15 @@ Issue #5의 앱 초기화 PR과 CI 결과를 확인하고 첫 3D 장면 작업�
 - lint-staged 및 commitlint 훅 구성, FSD alias import 위반 차단 확인
 - 독립 코드 리뷰 완료: 중요한 발견 사항 없음
 - 별도 새 clone에서 frozen-lockfile 설치, 타입 생성·검사, 전체 검사와 브라우저 스모크 통과
+- 개발 서버 응답 확인, 생성 파일은 Git에서 제외하고 개발 중 지침 자동 변경 방지
 
 ## In Progress
 
-- 앱 초기화 PR #7 생성 완료, GitHub Actions 확인 중
+- 앱 초기화 PR #7 승인 리뷰 대기 중. GitHub Actions는 992f728 커밋에서 전체 검사 통과
 
 ## Next
 
-- 첫 3D 장면 작업을 별도 Issue로 분리하고 Fuble → R3F Examples 순서로 참고
+- Issue #8의 첫 3D 정원 장면: Fuble → R3F Examples 순서로 참고
 - 기억 작성 및 달력 흐름의 첫 세로 슬라이스 구현
 
 ## Blockers

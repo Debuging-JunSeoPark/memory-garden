@@ -59,3 +59,5 @@
 - Review: no Critical/Important findings. Raised Node minimum to 20.19.0 for locked tooling.
 - Verification: full check, 25 unit tests, 2 production browser smoke tests, FSD negative import and commitlint positive/negative checks passed.
 - Handoff: PR #7 targets main; PR #6 contains the separate reference-document change. Both require an approving GitHub review. Fresh clone verification passed.
+- Development smoke: HTTP 200. Ignore generated next-env.d.ts and disable agentRules so running dev does not dirty curated guidance. Independent follow-up review confirmed cold typegen recreates declarations.
+- Follow-up: Issue #8 tracks the first 3D scene. CI passed all stages at 992f728; final dev-configuration follow-up is rechecked on PR #7.
