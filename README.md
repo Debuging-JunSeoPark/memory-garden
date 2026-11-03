@@ -26,6 +26,7 @@
 - [제품 및 저장소 설계](docs/superpowers/specs/2026-11-02-memory-garden-design.md)
 - [저장소 기반 구현 계획](docs/superpowers/plans/2026-11-02-repository-foundation.md)
 - [첫 3D 정원 구현 및 참고 기록](docs/3d-implementation-notes.md)
+- [3D 구현 참고 자료 및 우선순위](docs/3d-references.md)
 
 ## 로컬 실행
 

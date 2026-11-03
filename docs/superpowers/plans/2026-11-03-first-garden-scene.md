@@ -56,3 +56,4 @@
 - Verification: full check and 8 production browser tests pass. The missing home→garden link failed first; normal WebGL tests also caught an unconditional fallback effect, corrected by treating fallback as inert DOM and errors through the boundary.
 - Independent review: no Critical/Important findings. Desktop 1280px and mobile 390px visual QA passed; actual device GPU testing is still future work.
 - Handoff: PR #9 is based on PR #7. Fresh clone verification passed, and GitHub Actions passed at 28c2e6f (run 41587867656). The code is ready for review; no branches were merged.
+- Integration: user approved solo-project protection adjustment and merging today's PRs. PR #6 and #7 are now on main; PR #9 integrates main and will target it directly after final checks. Conflict resolution preserves the already reviewed 3D code and combines reference links with current workflow notes.

@@ -13,6 +13,7 @@
 - 포근하고 손으로 만든 듯한 로우 폴리 질감을 사용한다.
 - 기록을 쉬었다는 이유로 정원을 시들게 하거나 사용자를 벌하지 않는다.
 - 구현은 작은 Issue와 Pull Request로 나눈다.
+- 3D 구현 참고 순서는 Fuble → R3F Examples → React Three Examples → Three.js Examples → Drei → CandyCrossing이다. 링크와 탐색 항목은 `docs/3d-references.md`를 확인한다.
 
 ## Architecture Decisions
 
