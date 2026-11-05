@@ -22,12 +22,13 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   const [nearShelf, setNearShelf] = useState(false);
   const [hasMoved, setHasMoved] = useState(false);
   const [joystick, setJoystick] = useState(still);
+  const stage = useRef<HTMLElement>(null);
+  const shelfHeading = useRef<HTMLHeadingElement>(null);
   const action = useRef<HTMLButtonElement>(null);
   const lastView = useRef(view);
 
   const showMap = useCallback(() => {
     setAvailable(false);
-    setView((current) => (current === 'shelf' ? 'garden' : current));
   }, []);
   const markReady = useCallback(() => setReady(true), []);
   const markMoved = useCallback(() => setHasMoved(true), []);
@@ -36,18 +37,21 @@ export function GardenViewport({ children }: { children: ReactNode }) {
     setView('shelf');
   }, []);
   const openBook = useCallback(() => setView('book'), []);
-  const closeBook = () => setView(available ? 'shelf' : 'garden');
+  const closeBook = () => setView('shelf');
 
   useEffect(() => {
     if (view !== lastView.current) {
-      action.current?.focus({ preventScroll: true });
+      const target = view === 'shelf' ? shelfHeading.current : (action.current ?? stage.current);
+      target?.focus({ preventScroll: true });
       lastView.current = view;
     }
   }, [view]);
 
-  const map = <GardenMap onOpenBook={openBook} />;
+  const map = <GardenMap onOpenShelf={openShelf} />;
   return (
     <section
+      ref={stage}
+      tabIndex={-1}
       aria-label="정원 미리보기"
       className="relative h-svh min-h-72 bg-[radial-gradient(ellipse_at_50%_38%,#f4f1df_5%,#dde8d9_82%)]"
     >
@@ -62,12 +66,13 @@ export function GardenViewport({ children }: { children: ReactNode }) {
               onFirstMove={markMoved}
               onOpenShelf={openShelf}
               joystick={joystick}
+              nearShelf={nearShelf}
               shelf={view !== 'garden'}
             />
           </SceneErrorBoundary>
-        ) : (
-          <GardenMap onOpenBook={openBook} actionRef={view === 'garden' ? action : undefined} />
-        )}
+        ) : view === 'garden' ? (
+          <GardenMap onOpenShelf={openShelf} actionRef={action} />
+        ) : null}
       </div>
       <p
         role="status"
@@ -80,7 +85,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
         {available
           ? ready
             ? nearShelf && view === 'garden'
-              ? '책장에 도착했어요. Enter 또는 책장 보기로 열 수 있어요.'
+              ? '책장에 도착했어요. 책장을 누르거나 Enter 키로 열 수 있어요.'
               : '정원을 둘러볼 수 있어요.'
             : '정원을 불러오고 있어요.'
           : '정적 지도로 정원을 보고 있어요.'}
@@ -95,24 +100,36 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           )}
           <GardenJoystick direction={joystick} onMove={setJoystick} />
           {nearShelf && (
-            <button
-              ref={action}
-              type="button"
-              className={`absolute right-5 bottom-6 ${controlClass}`}
-              onClick={openShelf}
+            <p
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-4 top-5 text-center text-xs text-ink"
             >
-              책장 보기
-            </button>
+              책장을 눌러 살펴보기
+            </p>
           )}
         </>
       )}
       {view === 'shelf' && (
         <>
-          <h2 className="absolute inset-x-0 top-6 text-center font-semibold">기억의 책장</h2>
-          <div className="absolute inset-x-4 bottom-6 flex flex-wrap justify-center gap-3">
-            <button ref={action} type="button" className={controlClass} onClick={openBook}>
-              정원 안내서 펼치기
-            </button>
+          <h2
+            ref={shelfHeading}
+            tabIndex={-1}
+            className="absolute inset-x-0 top-6 text-center font-semibold"
+          >
+            기억의 책장
+          </h2>
+          <button
+            type="button"
+            className={
+              available
+                ? `sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-16 focus-visible:left-1/2 focus-visible:-translate-x-1/2 ${controlClass}`
+                : 'absolute top-1/2 left-1/2 min-h-32 -translate-1/2 cursor-pointer rounded-r-xl border-l-8 border-[#a95f45] bg-[#d29067] px-6 font-semibold text-ink shadow-lg'
+            }
+            onClick={openBook}
+          >
+            정원 안내서 펼치기
+          </button>
+          <div className="absolute inset-x-4 bottom-6 flex justify-center">
             <button type="button" className={controlClass} onClick={() => setView('garden')}>
               정원으로 돌아가기
             </button>

@@ -31,9 +31,9 @@ function GardenCamera({ onUnavailable, onReady, shelf }: SceneCallbacks & { shel
       position={shelf ? [2, 2.1, 4] : [6.5, 6.8, 10]}
       near={0.1}
       far={60}
-      zoom={Math.min(size.width / (shelf ? 2.7 : 7.9), size.height / (shelf ? 2.8 : 7.7))}
+      zoom={Math.min(size.width / (shelf ? 2.7 : 7.9), size.height / (shelf ? 3.2 : 7.7))}
       onUpdate={(camera) => {
-        if (shelf) camera.lookAt(shelfPosition.x, 0.93, shelfPosition.z);
+        if (shelf) camera.lookAt(shelfPosition.x, 1.14, shelfPosition.z);
         else camera.lookAt(0, 0.55, 0);
       }}
     />
@@ -48,6 +48,7 @@ export function GardenCanvas({
   onFirstMove,
   onOpenShelf,
   joystick,
+  nearShelf,
   shelf,
 }: SceneCallbacks & {
   onOpenGuide: () => void;
@@ -55,6 +56,7 @@ export function GardenCanvas({
   onFirstMove: () => void;
   onOpenShelf: () => void;
   joystick: Direction;
+  nearShelf: boolean;
   shelf: boolean;
 }) {
   return (
@@ -89,7 +91,11 @@ export function GardenCanvas({
           onFirstMove={onFirstMove}
           onOpenShelf={onOpenShelf}
         />
-        {shelf ? <GardenBookshelf onOpenGuide={onOpenGuide} /> : <GardenIsland />}
+        {shelf ? (
+          <GardenBookshelf onOpenGuide={onOpenGuide} />
+        ) : (
+          <GardenIsland onOpenShelf={nearShelf ? onOpenShelf : undefined} />
+        )}
         {!shelf && (
           <ContactShadows
             position={[0, -0.66, 0]}

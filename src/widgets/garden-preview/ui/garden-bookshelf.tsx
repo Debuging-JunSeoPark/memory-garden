@@ -16,38 +16,60 @@ const canopyOptions: ExtrudeGeometryOptions = {
   bevelSegments: 2,
 };
 
-const shelves = [0.1, 0.59, 1.08];
+const rows = [1.08, 0.59, 0.1];
+const slotsPerRow = 5;
+const slotPitch = 0.24;
+const shelfThickness = 0.075;
+const bookWidth = 0.19;
+const bookHeight = 0.36;
+const bookDepth = 0.24;
 
-export function GardenBookshelf({ onOpenGuide }: { onOpenGuide?: () => void }) {
+function bookSlot(index: number): [number, number, number] {
+  const column = index % slotsPerRow;
+  const row = Math.floor(index / slotsPerRow);
+  return [
+    (column - (slotsPerRow - 1) / 2) * slotPitch,
+    rows[row] + (shelfThickness + bookHeight) / 2,
+    0.16,
+  ];
+}
+
+export function GardenBookshelf({
+  onOpenShelf,
+  onOpenGuide,
+}: {
+  onOpenShelf?: () => void;
+  onOpenGuide?: () => void;
+}) {
   return (
-    <group position={[shelfPosition.x, 0.12, shelfPosition.z]}>
+    <group position={[shelfPosition.x, 0.12, shelfPosition.z]} onClick={onOpenShelf}>
       <mesh position={[0, 0.04, 0.04]} castShadow receiveShadow>
         <boxGeometry args={[1.65, 0.08, 0.9]} />
         <meshStandardMaterial color="#ddac8b" />
       </mesh>
-      <mesh position={[0, 0.64, -0.28]} castShadow receiveShadow>
-        <boxGeometry args={[1.34, 1.12, 0.08]} />
+      <mesh position={[0, 0.85, -0.28]} castShadow receiveShadow>
+        <boxGeometry args={[1.34, 1.54, 0.08]} />
         <meshStandardMaterial color="#926c51" />
       </mesh>
       {[-0.69, 0.69].map((x) => (
-        <mesh key={x} position={[x, 0.69, 0]} castShadow receiveShadow>
-          <boxGeometry args={[0.12, 1.24, 0.68]} />
+        <mesh key={x} position={[x, 0.85, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.12, 1.54, 0.68]} />
           <meshStandardMaterial color="#89a57e" />
         </mesh>
       ))}
-      {shelves.map((y) => (
+      {rows.map((y) => (
         <mesh key={y} position={[0, y, 0.04]} castShadow receiveShadow>
-          <boxGeometry args={[1.32, 0.075, 0.65]} />
+          <boxGeometry args={[1.32, shelfThickness, 0.65]} />
           <meshStandardMaterial color="#dbab79" />
         </mesh>
       ))}
-      <mesh position={[0, 1.29, -0.38]} castShadow receiveShadow>
+      <mesh position={[0, 1.62, -0.38]} castShadow receiveShadow>
         <extrudeGeometry args={[canopy, canopyOptions]} />
         <meshStandardMaterial color="#77966f" roughness={0.85} />
       </mesh>
-      <group position={[-0.41, 0.81, 0.23]} rotation={[0, -0.14, -0.13]} onClick={onOpenGuide}>
+      <group position={bookSlot(0)} onClick={onOpenGuide}>
         <mesh castShadow>
-          <boxGeometry args={[0.19, 0.36, 0.24]} />
+          <boxGeometry args={[bookWidth, bookHeight, bookDepth]} />
           <meshStandardMaterial color="#d58550" />
         </mesh>
         <mesh position={[0.096, 0, -0.018]}>
@@ -75,7 +97,7 @@ export function GardenBookshelf({ onOpenGuide }: { onOpenGuide?: () => void }) {
           <meshStandardMaterial color="#ffd593" emissive="#efa756" emissiveIntensity={0.45} />
         </mesh>
       </group>
-      <group position={[0.43, 0.14, 0.21]}>
+      <group position={[0.62, 0.08, 0.4]}>
         <mesh position={[0, 0.08, 0]} castShadow>
           <cylinderGeometry args={[0.115, 0.075, 0.16, 12]} />
           <meshStandardMaterial color="#e4a18a" />

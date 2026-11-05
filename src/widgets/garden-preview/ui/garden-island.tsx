@@ -79,7 +79,7 @@ function Flower({ position, color }: { position: Point; color: string }) {
   );
 }
 
-export function GardenIsland() {
+export function GardenIsland({ onOpenShelf }: { onOpenShelf?: () => void }) {
   return (
     <group>
       <mesh position={[0, -0.2225, 0]} receiveShadow castShadow>
@@ -108,7 +108,7 @@ export function GardenIsland() {
       ))}
       <Tree position={[-1.55, 0.12, -1.2]} />
       <Tree position={[2.05, 0.12, -1.24]} scale={0.61} />
-      <GardenBookshelf />
+      <GardenBookshelf onOpenShelf={onOpenShelf} />
       <Bench />
       <mesh position={[1.55, 0.15, 0.7]} receiveShadow>
         <boxGeometry args={[1.05, 0.12, 1.55]} />

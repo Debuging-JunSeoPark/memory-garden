@@ -13,8 +13,8 @@ export function GardenPreview() {
             <p className="mt-3 font-medium">당신의 첫 번째 정원</p>
             <p className="mt-3">아직 아무것도 쓰지 않은 날에도, 쉴 수 있는 자리는 있어요.</p>
             <p className="mt-5">
-              방향키나 WASD, 또는 이동 조이스틱으로 정원을 걸어요. 돌길 끝의 책장에 가까워지면
-              선반을 살펴볼 수 있어요.
+              방향키나 WASD, 또는 이동 조이스틱으로 정원을 걸어요. 돌길 끝의 책장에 가까이 가서
+              책장을 누르면 선반을 살펴볼 수 있어요.
             </p>
           </section>
           <section className="bg-linear-to-t from-[#fff8e9] to-[#f2e3c7] p-6 sm:bg-linear-to-l sm:p-9">

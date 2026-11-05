@@ -35,13 +35,12 @@ export function GardenPlayer({
     const clear = () => pressed.clear();
     const press = (event: KeyboardEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
-      if (
-        event.key === 'Enter' &&
-        nearby.current &&
-        !event.repeat &&
-        event.target === document.body
-      ) {
-        onOpenShelf();
+      if (event.key === 'Enter' && nearby.current && !event.repeat) {
+        const target = event.target;
+        if (!(target instanceof Element) || !target.closest('button, a, input, select, textarea')) {
+          event.preventDefault();
+          onOpenShelf();
+        }
         return;
       }
       const key = event.key.toLowerCase();

@@ -1,10 +1,10 @@
 import type { Ref } from 'react';
 
 export function GardenMap({
-  onOpenBook,
+  onOpenShelf,
   actionRef,
 }: {
-  onOpenBook: () => void;
+  onOpenShelf: () => void;
   actionRef?: Ref<HTMLButtonElement>;
 }) {
   return (
@@ -102,7 +102,7 @@ export function GardenMap({
           ref={actionRef}
           type="button"
           aria-label="지도에서 책장 열기"
-          onClick={onOpenBook}
+          onClick={onOpenShelf}
           className="absolute top-[25%] left-[53%] min-h-11 min-w-12 -translate-1/2 cursor-pointer rounded-xl border border-transparent hover:border-moss focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-moss"
         />
       </div>
