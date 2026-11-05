@@ -53,7 +53,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
       ref={stage}
       tabIndex={-1}
       aria-label="정원 미리보기"
-      className="relative h-svh min-h-72 bg-[radial-gradient(ellipse_at_50%_38%,#f4f1df_5%,#dde8d9_82%)]"
+      className="relative h-svh min-h-72 bg-[radial-gradient(ellipse_at_50%_38%,#f4f1df_5%,#dde8d9_82%)] outline-none"
     >
       <div className="absolute inset-0" inert={view === 'book'}>
         {available ? (
@@ -114,7 +114,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           <h2
             ref={shelfHeading}
             tabIndex={-1}
-            className="absolute inset-x-0 top-6 text-center font-semibold"
+            className="absolute inset-x-0 top-6 text-center font-semibold outline-none"
           >
             기억의 책장
           </h2>
