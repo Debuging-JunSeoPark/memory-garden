@@ -31,6 +31,17 @@ test('shows a useful map and navigation when WebGL is unavailable', async ({ pag
   await expect(page.getByRole('img', { name: '정원의 정적 지도' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '오래 머물고 싶은 작은 장소들' })).toBeVisible();
   await expect(page.locator('canvas')).toHaveCount(0);
+  const guide = page.locator('summary').filter({ hasText: '정원 안내서' });
+  await expect(guide).toBeVisible();
+  const guideContent = page.getByRole('region', { name: '정원 안내서 내용' });
+  await expect(guideContent).toBeHidden();
+  await guide.focus();
+  await page.keyboard.press('Enter');
+  await expect(guideContent).toBeVisible();
+  await expect(guideContent).toContainText('한 달에 한 권');
+  await expect(guideContent).toContainText('기록한 날마다');
+  await guide.click();
+  await expect(guideContent).toBeHidden();
   await page.getByRole('link', { name: '소개로 돌아가기' }).click();
   await expect(page).toHaveURL('/');
 });

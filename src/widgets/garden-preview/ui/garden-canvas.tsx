@@ -25,11 +25,11 @@ function GardenCamera({ onUnavailable, onReady }: SceneCallbacks) {
   return (
     <OrthographicCamera
       makeDefault
-      position={[8, 7, 8]}
+      position={[6.5, 6.8, 10]}
       near={0.1}
       far={60}
-      zoom={Math.min(size.width / 10.5, size.height / 8.5)}
-      onUpdate={(camera) => camera.lookAt(0, 0.5, 0)}
+      zoom={Math.min(size.width / 7.9, size.height / 7.7)}
+      onUpdate={(camera) => camera.lookAt(0, 0.55, 0)}
     />
   );
 }
@@ -39,7 +39,7 @@ export function GardenCanvas({ onUnavailable, onReady }: SceneCallbacks) {
     <div className="h-full w-full" aria-hidden="true">
       <Canvas
         orthographic
-        camera={{ position: [8, 7, 8], near: 0.1, far: 60 }}
+        camera={{ position: [6.5, 6.8, 10], near: 0.1, far: 60 }}
         dpr={[1, 1.5]}
         frameloop="demand"
         shadows="percentage"
@@ -47,17 +47,18 @@ export function GardenCanvas({ onUnavailable, onReady }: SceneCallbacks) {
         fallback={<span>정적 지도로도 정원을 둘러볼 수 있어요.</span>}
       >
         <GardenCamera onUnavailable={onUnavailable} onReady={onReady} />
-        <hemisphereLight args={['#fff8e6', '#8c9b70', 2.1]} />
+        <hemisphereLight args={['#fff3dc', '#a8aa88', 2.4]} />
         <directionalLight
           position={[-3, 8, 4]}
-          intensity={3}
+          intensity={2.5}
           castShadow
           shadow-mapSize={[1024, 1024]}
           shadow-camera-left={-5}
           shadow-camera-right={5}
           shadow-camera-top={5}
           shadow-camera-bottom={-5}
-          shadow-normalBias={0.04}
+          shadow-normalBias={0.035}
+          shadow-radius={3}
         />
         <GardenIsland />
         <ContactShadows

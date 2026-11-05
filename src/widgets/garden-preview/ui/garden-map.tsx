@@ -10,7 +10,8 @@ export function GardenMap() {
       >
         <title id="garden-map-title">정원의 정적 지도</title>
         <desc id="garden-map-desc">
-          둥근 정원 북서쪽에 그늘 나무가 있고, 중앙 돌길 옆에는 벤치, 동쪽에는 작은 꽃밭이 있어요.
+          둥근 정원의 돌길 끝에는 기억의 책장이 있어요. 돌길 왼쪽에는 그늘 나무와 벤치, 오른쪽에는
+          작은 꽃밭이 있어요.
         </desc>
         <ellipse
           cx="200"
@@ -22,7 +23,7 @@ export function GardenMap() {
           strokeWidth="6"
         />
         <path
-          d="M188 307C218 263 176 238 189 201S219 143 208 92"
+          d="M188 307C218 263 176 238 189 201S219 153 208 114"
           fill="none"
           stroke="#e3d4b3"
           strokeWidth="35"
@@ -51,7 +52,22 @@ export function GardenMap() {
           <circle cx="266" cy="195" r="8" />
           <circle cx="295" cy="219" r="8" />
         </g>
+        <g transform="translate(181 76)">
+          <rect x="3" y="8" width="54" height="32" rx="4" fill="#9a7457" />
+          <path
+            d="M1 10Q30 -17 59 10"
+            fill="none"
+            stroke="#648257"
+            strokeWidth="6"
+            strokeLinecap="round"
+          />
+          <path d="M8 27H52" stroke="#e1b382" strokeWidth="4" />
+          <rect x="13" y="12" width="7" height="12" rx="1" fill="#efbb77" />
+        </g>
         <g fill="#293e32" fontFamily="sans-serif" fontSize="13" textAnchor="middle">
+          <text x="211" y="64">
+            기억의 책장
+          </text>
           <text x="112" y="194">
             그늘 나무
           </text>

@@ -45,11 +45,37 @@ export function GardenPreview() {
             <h2 id="places-title" className="mt-4 text-xl leading-8 font-medium">
               오래 머물고 싶은 작은 장소들
             </h2>
-            <dl className="mt-7 grid gap-6 border-t border-ink/15 pt-7">
+            <details className="group mt-5 rounded-2xl border border-moss/20 bg-[#eef0e2]">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 rounded-2xl px-3 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-moss [&::-webkit-details-marker]:hidden">
+                <span
+                  aria-hidden="true"
+                  className="h-7 w-5 shrink-0 rounded-r-sm border-l-4 border-[#a95f45] bg-[#d29067] shadow-sm"
+                />
+                정원 안내서
+                <span aria-hidden="true" className="ml-auto group-open:rotate-180">
+                  ⌄
+                </span>
+              </summary>
+              <div
+                role="region"
+                aria-label="정원 안내서 내용"
+                className="px-4 pt-1 pb-4 text-sm leading-6 text-ink/80"
+              >
+                <ol className="grid list-decimal gap-2 pl-4">
+                  <li>3D 정원과 정적 지도에서 돌길 끝의 기억의 책장을 찾아보세요.</li>
+                  <li>기록한 날마다 정원에 그날의 꽃 한 송이가 피어나요.</li>
+                  <li>한 달에 한 권, 책장에서 그달의 일기를 날짜별로 다시 읽을 수 있어요.</li>
+                </ol>
+                <p className="mt-3 border-t border-moss/15 pt-2 text-xs text-moss">
+                  지금은 정원과 안내서를 둘러볼 수 있어요. 일기 쓰기는 이후에 열려요.
+                </p>
+              </div>
+            </details>
+            <dl className="mt-6 grid gap-5 border-t border-ink/15 pt-5">
               <div>
                 <dt className="font-medium">01. 그늘 나무</dt>
                 <dd className="mt-2 text-sm leading-7 text-ink/70">
-                  천천히 자란 나무 아래, 잠깐 쉬어가도 괜찮아요.
+                  그늘 나무 옆 벤치에 앉아 잠깐 쉬어가도 괜찮아요.
                 </dd>
               </div>
               <div>
@@ -59,15 +85,12 @@ export function GardenPreview() {
                 </dd>
               </div>
               <div>
-                <dt className="font-medium">03. 쉬어가는 벤치</dt>
+                <dt className="font-medium">03. 기억의 책장</dt>
                 <dd className="mt-2 text-sm leading-7 text-ink/70">
-                  오늘의 마음을 가만히 내려놓는 자리예요.
+                  돌길 끝 책장에는 정원 안내서가 꽂혀 있어요. 앞으로 이곳에 한 달씩 기억을 모아요.
                 </dd>
               </div>
             </dl>
-            <p className="mt-8 rounded-2xl bg-[#e8ebdd] p-5 text-sm leading-7 text-moss">
-              지금은 정원을 바라볼 수 있어요. 이곳에 남길 이야기를 기다리고 있어요.
-            </p>
           </aside>
         </div>
         <footer className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/15 pt-6 text-xs text-ink/60">

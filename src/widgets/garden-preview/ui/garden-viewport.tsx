@@ -25,7 +25,7 @@ export function GardenViewport() {
 
   return (
     <section aria-label="정원 미리보기" className="min-w-0">
-      <div className="relative h-[380px] overflow-hidden rounded-3xl border border-moss/15 bg-[#e5ebd9] sm:h-[520px]">
+      <div className="relative h-[380px] overflow-hidden rounded-3xl border border-moss/15 bg-[radial-gradient(ellipse_at_50%_38%,#f4f1df_5%,#dde8d9_82%)] sm:h-[520px]">
         <span
           className="pointer-events-none absolute top-5 left-5 z-10 text-[10px] tracking-[0.2em] text-moss"
           aria-hidden="true"
