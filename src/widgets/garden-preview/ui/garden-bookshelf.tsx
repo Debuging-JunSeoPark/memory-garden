@@ -17,9 +17,9 @@ const canopyOptions: ExtrudeGeometryOptions = {
 
 const shelves = [0.1, 0.59, 1.08];
 
-export function GardenBookshelf() {
+export function GardenBookshelf({ onOpenGuide }: { onOpenGuide: () => void }) {
   return (
-    <group position={[0.22, 0.12, -2.12]}>
+    <group position={[0.22, 0.12, -2.12]} onClick={onOpenGuide}>
       <mesh position={[0, 0.04, 0.04]} castShadow receiveShadow>
         <boxGeometry args={[1.65, 0.08, 0.9]} />
         <meshStandardMaterial color="#ddac8b" />

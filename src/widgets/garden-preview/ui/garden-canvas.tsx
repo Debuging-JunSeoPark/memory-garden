@@ -34,7 +34,11 @@ function GardenCamera({ onUnavailable, onReady }: SceneCallbacks) {
   );
 }
 
-export function GardenCanvas({ onUnavailable, onReady }: SceneCallbacks) {
+export function GardenCanvas({
+  onUnavailable,
+  onReady,
+  onOpenGuide,
+}: SceneCallbacks & { onOpenGuide: () => void }) {
   return (
     <div className="h-full w-full" aria-hidden="true">
       <Canvas
@@ -60,7 +64,7 @@ export function GardenCanvas({ onUnavailable, onReady }: SceneCallbacks) {
           shadow-normalBias={0.035}
           shadow-radius={3}
         />
-        <GardenIsland />
+        <GardenIsland onOpenGuide={onOpenGuide} />
         <ContactShadows
           position={[0, -0.66, 0]}
           opacity={0.28}

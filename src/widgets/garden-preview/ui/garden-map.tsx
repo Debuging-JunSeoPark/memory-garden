@@ -1,12 +1,12 @@
 export function GardenMap() {
   return (
-    <div className="flex h-full w-full items-center justify-center p-6">
+    <div className="flex h-full w-full items-center justify-center px-6 py-16">
       <svg
         role="img"
         aria-labelledby="garden-map-title"
         aria-describedby="garden-map-desc"
         viewBox="0 0 400 360"
-        className="h-full max-h-96 w-full max-w-md"
+        className="h-full max-h-[75svh] w-full max-w-2xl"
       >
         <title id="garden-map-title">정원의 정적 지도</title>
         <desc id="garden-map-desc">
