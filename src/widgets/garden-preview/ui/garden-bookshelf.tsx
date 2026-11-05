@@ -1,4 +1,5 @@
 import { Shape, type ExtrudeGeometryOptions } from 'three';
+import { shelfPosition } from './garden-walk';
 
 const canopy = new Shape()
   .moveTo(-0.81, 0)
@@ -17,9 +18,9 @@ const canopyOptions: ExtrudeGeometryOptions = {
 
 const shelves = [0.1, 0.59, 1.08];
 
-export function GardenBookshelf({ onOpenGuide }: { onOpenGuide: () => void }) {
+export function GardenBookshelf({ onOpenGuide }: { onOpenGuide?: () => void }) {
   return (
-    <group position={[0.22, 0.12, -2.12]} onClick={onOpenGuide}>
+    <group position={[shelfPosition.x, 0.12, shelfPosition.z]}>
       <mesh position={[0, 0.04, 0.04]} castShadow receiveShadow>
         <boxGeometry args={[1.65, 0.08, 0.9]} />
         <meshStandardMaterial color="#ddac8b" />
@@ -44,7 +45,7 @@ export function GardenBookshelf({ onOpenGuide }: { onOpenGuide: () => void }) {
         <extrudeGeometry args={[canopy, canopyOptions]} />
         <meshStandardMaterial color="#77966f" roughness={0.85} />
       </mesh>
-      <group position={[-0.41, 0.81, 0.23]} rotation={[0, -0.14, -0.13]}>
+      <group position={[-0.41, 0.81, 0.23]} rotation={[0, -0.14, -0.13]} onClick={onOpenGuide}>
         <mesh castShadow>
           <boxGeometry args={[0.19, 0.36, 0.24]} />
           <meshStandardMaterial color="#d58550" />
