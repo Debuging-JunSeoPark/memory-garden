@@ -4,11 +4,14 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei/core/ContactShadows';
 import { OrthographicCamera } from '@react-three/drei/core/OrthographicCamera';
 import { useEffect } from 'react';
+import { GardenBookshelf } from './garden-bookshelf';
 import { GardenIsland } from './garden-island';
+import { GardenPlayer } from './garden-player';
+import { shelfPosition, type Direction } from './garden-walk';
 
 type SceneCallbacks = { onUnavailable: () => void; onReady: () => void };
 
-function GardenCamera({ onUnavailable, onReady }: SceneCallbacks) {
+function GardenCamera({ onUnavailable, onReady, shelf }: SceneCallbacks & { shelf: boolean }) {
   const { size, gl } = useThree();
 
   useEffect(() => {
@@ -25,51 +28,86 @@ function GardenCamera({ onUnavailable, onReady }: SceneCallbacks) {
   return (
     <OrthographicCamera
       makeDefault
-      position={[8, 7, 8]}
+      position={shelf ? [2, 2.1, 4] : [6.5, 6.8, 10]}
       near={0.1}
       far={60}
-      zoom={Math.min(size.width / 10.5, size.height / 8.5)}
-      onUpdate={(camera) => camera.lookAt(0, 0.5, 0)}
+      zoom={Math.min(size.width / (shelf ? 2.7 : 7.9), size.height / (shelf ? 3.2 : 7.7))}
+      onUpdate={(camera) => {
+        if (shelf) camera.lookAt(shelfPosition.x, 1.14, shelfPosition.z);
+        else camera.lookAt(0, 0.55, 0);
+      }}
     />
   );
 }
 
-export function GardenCanvas({ onUnavailable, onReady }: SceneCallbacks) {
+export function GardenCanvas({
+  onUnavailable,
+  onReady,
+  onOpenGuide,
+  onNearShelf,
+  onFirstMove,
+  onOpenShelf,
+  joystick,
+  nearShelf,
+  shelf,
+}: SceneCallbacks & {
+  onOpenGuide: () => void;
+  onNearShelf: (near: boolean) => void;
+  onFirstMove: () => void;
+  onOpenShelf: () => void;
+  joystick: Direction;
+  nearShelf: boolean;
+  shelf: boolean;
+}) {
   return (
     <div className="h-full w-full" aria-hidden="true">
       <Canvas
         orthographic
-        camera={{ position: [8, 7, 8], near: 0.1, far: 60 }}
+        camera={{ position: [6.5, 6.8, 10], near: 0.1, far: 60 }}
         dpr={[1, 1.5]}
         frameloop="demand"
         shadows="percentage"
         gl={{ antialias: true, powerPreference: 'low-power' }}
         fallback={<span>정적 지도로도 정원을 둘러볼 수 있어요.</span>}
       >
-        <GardenCamera onUnavailable={onUnavailable} onReady={onReady} />
-        <hemisphereLight args={['#fff8e6', '#8c9b70', 2.1]} />
+        <GardenCamera onUnavailable={onUnavailable} onReady={onReady} shelf={shelf} />
+        <hemisphereLight args={['#fff3dc', '#a8aa88', 2.4]} />
         <directionalLight
           position={[-3, 8, 4]}
-          intensity={3}
+          intensity={2.5}
           castShadow
           shadow-mapSize={[1024, 1024]}
           shadow-camera-left={-5}
           shadow-camera-right={5}
           shadow-camera-top={5}
           shadow-camera-bottom={-5}
-          shadow-normalBias={0.04}
+          shadow-normalBias={0.035}
+          shadow-radius={3}
         />
-        <GardenIsland />
-        <ContactShadows
-          position={[0, -0.66, 0]}
-          opacity={0.28}
-          scale={12}
-          blur={2.4}
-          far={5}
-          resolution={256}
-          frames={1}
-          color="#65734b"
+        <GardenPlayer
+          active={!shelf}
+          joystick={joystick}
+          onNearShelf={onNearShelf}
+          onFirstMove={onFirstMove}
+          onOpenShelf={onOpenShelf}
         />
+        {shelf ? (
+          <GardenBookshelf onOpenGuide={onOpenGuide} />
+        ) : (
+          <GardenIsland onOpenShelf={nearShelf ? onOpenShelf : undefined} />
+        )}
+        {!shelf && (
+          <ContactShadows
+            position={[0, -0.66, 0]}
+            opacity={0.28}
+            scale={12}
+            blur={2.4}
+            far={5}
+            resolution={256}
+            frames={1}
+            color="#65734b"
+          />
+        )}
       </Canvas>
     </div>
   );

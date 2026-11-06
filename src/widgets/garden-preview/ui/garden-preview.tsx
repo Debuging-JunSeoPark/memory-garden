@@ -3,78 +3,42 @@ import { GardenViewport } from './garden-viewport';
 
 export function GardenPreview() {
   return (
-    <>
-      <a
-        href="#garden-main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-20 focus:bg-paper focus:p-3"
-      >
-        본문으로 건너뛰기
-      </a>
-      <header className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-7 md:px-12">
-        <Link
-          href="/"
-          className="flex items-center gap-3 font-semibold"
-          aria-label="기억의 정원 홈"
-        >
-          <span
-            aria-hidden="true"
-            className="flex size-9 items-center justify-center rounded-full bg-moss text-paper"
-          >
-            ✳
-          </span>
-          기억의 정원
-        </Link>
-        <Link href="/" className="text-sm underline decoration-moss/40 underline-offset-8">
-          소개로 돌아가기
-        </Link>
-      </header>
-      <main id="garden-main" className="mx-auto max-w-7xl px-6 pb-12 md:px-12">
-        <div className="pt-8 pb-9 md:pt-12">
-          <p className="text-xs tracking-[0.25em] text-moss">GARDEN NO. 001</p>
-          <h1 className="mt-4 text-3xl leading-tight font-medium tracking-[-0.04em] sm:text-5xl">
-            당신의 첫 번째 정원
-          </h1>
-          <p className="mt-4 text-sm leading-7 text-ink/70">
-            아직 아무것도 쓰지 않은 날에도, 쉴 수 있는 자리는 있어요.
-          </p>
-        </div>
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_240px] lg:gap-10">
-          <GardenViewport />
-          <aside aria-labelledby="places-title" className="py-2">
-            <p className="text-xs tracking-[0.2em] text-moss">LITTLE PLACES</p>
-            <h2 id="places-title" className="mt-4 text-xl leading-8 font-medium">
-              오래 머물고 싶은 작은 장소들
-            </h2>
-            <dl className="mt-7 grid gap-6 border-t border-ink/15 pt-7">
+    <main>
+      <h1 className="sr-only">기억의 정원</h1>
+      <GardenViewport>
+        <div className="mx-auto grid max-w-3xl overflow-hidden rounded-[1.2rem] border-4 border-[#a76b4e] bg-[#f7edda] text-sm leading-7 shadow-xl sm:grid-cols-2">
+          <section className="border-b border-[#dfc5a0] bg-linear-to-b from-[#fff8e9] to-[#f2e3c7] p-6 sm:border-r sm:border-b-0 sm:bg-linear-to-r sm:p-9">
+            <p className="text-xs tracking-widest text-moss">첫 번째 책</p>
+            <h2 className="mt-4 text-3xl font-semibold">정원 안내서</h2>
+            <p className="mt-3 font-medium">당신의 첫 번째 정원</p>
+            <p className="mt-3">아직 아무것도 쓰지 않은 날에도, 쉴 수 있는 자리는 있어요.</p>
+            <p className="mt-5">
+              방향키나 WASD, 또는 이동 조이스틱으로 정원을 걸어요. 돌길 끝의 책장에 가까이 가서
+              책장을 누르면 선반을 살펴볼 수 있어요.
+            </p>
+          </section>
+          <section className="bg-linear-to-t from-[#fff8e9] to-[#f2e3c7] p-6 sm:bg-linear-to-l sm:p-9">
+            <h3 className="text-lg font-semibold">기억이 자라는 곳</h3>
+            <dl className="mt-4 grid gap-3">
               <div>
-                <dt className="font-medium">01. 그늘 나무</dt>
-                <dd className="mt-2 text-sm leading-7 text-ink/70">
-                  천천히 자란 나무 아래, 잠깐 쉬어가도 괜찮아요.
-                </dd>
+                <dt className="font-semibold">작은 꽃밭</dt>
+                <dd>기록한 날마다 정원에 그날의 꽃 한 송이가 피어나요.</dd>
               </div>
               <div>
-                <dt className="font-medium">02. 작은 꽃밭</dt>
-                <dd className="mt-2 text-sm leading-7 text-ink/70">
-                  소박한 하루도 저마다의 빛깔로 피어날 거예요.
-                </dd>
-              </div>
-              <div>
-                <dt className="font-medium">03. 쉬어가는 벤치</dt>
-                <dd className="mt-2 text-sm leading-7 text-ink/70">
-                  오늘의 마음을 가만히 내려놓는 자리예요.
-                </dd>
+                <dt className="font-semibold">기억의 책장</dt>
+                <dd>한 달에 한 권, 책장에서 그달의 일기를 날짜별로 다시 읽을 수 있어요.</dd>
               </div>
             </dl>
-            <p className="mt-8 rounded-2xl bg-[#e8ebdd] p-5 text-sm leading-7 text-moss">
-              지금은 정원을 바라볼 수 있어요. 이곳에 남길 이야기를 기다리고 있어요.
-            </p>
-          </aside>
+            <p className="mt-4 text-moss">일기 쓰기는 이후에 열려요.</p>
+            <Link
+              href="/"
+              className="inline-flex min-h-11 items-center underline underline-offset-4"
+            >
+              소개로 돌아가기
+            </Link>
+          </section>
         </div>
-        <footer className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/15 pt-6 text-xs text-ink/60">
-          <span>서두르지 않아도, 기억은 자라니까.</span>
-          <span>기억의 정원</span>
-        </footer>
-      </main>
-    </>
+      </GardenViewport>
+    </main>
   );
 }
