@@ -37,3 +37,74 @@ test('reaches the writing screen from the fallback map', async ({ page }) => {
   await page.getByRole('button', { name: '정원으로 돌아가기', exact: true }).click();
   await expect(page.getByRole('img', { name: '정원의 정적 지도' })).toBeVisible();
 });
+
+test('adds photos with descriptions, keeps them across garden visits, and removes them', async ({ page }) => {
+  await page.goto('/garden');
+  await expect(page.getByRole('status')).toContainText('일기장');
+  await page.keyboard.press('Enter');
+  const photo = {
+    name: 'garden.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lV0AAAAASUVORK5CYII=', 'base64'),
+  };
+  await page.getByLabel('사진 추가').setInputFiles([photo]);
+  await expect(page.getByRole('img', { name: 'garden.png' })).toBeVisible();
+  await page.getByLabel('사진 1 설명').fill('햇살이 비치는 정원');
+  await page.getByRole('button', { name: '정원으로 돌아가기', exact: true }).click();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('img', { name: '햇살이 비치는 정원' })).toBeVisible();
+  await page.getByRole('button', { name: '사진 1 삭제' }).click();
+  await expect(page.getByRole('img', { name: '햇살이 비치는 정원' })).toHaveCount(0);
+  await page.getByLabel('사진 추가').setInputFiles([photo]);
+  await expect(page.getByRole('img', { name: 'garden.png' })).toBeVisible();
+  await page.getByLabel('사진 추가').setInputFiles(
+    Array.from({ length: 8 }, (_, index) => ({ ...photo, name: `extra-${index}.png` })),
+  );
+  const gallery = page.getByRole('region', { name: '오늘의 사진' });
+  await expect(gallery.getByRole('img')).toHaveCount(8);
+  await expect(gallery.getByRole('alert')).toContainText('최대 8장');
+});
+
+test('reports unsupported and damaged images without losing text', async ({ page }) => {
+  await page.goto('/garden');
+  await expect(page.getByRole('status')).toContainText('일기장');
+  await page.keyboard.press('Enter');
+  await page.getByLabel('오늘의 이야기').fill('사진을 고르는 중에도 이 문장은 남아요.');
+  await page.getByLabel('사진 추가').setInputFiles([
+    { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') },
+    { name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('invalid image') },
+    { name: 'large.png', mimeType: 'image/png', buffer: Buffer.alloc(10 * 1024 * 1024 + 1) },
+  ]);
+  await expect(page.getByRole('region', { name: '오늘의 사진' }).getByRole('alert')).toContainText('notes.txt');
+  await expect(page.getByRole('region', { name: '오늘의 사진' }).getByRole('alert')).toContainText('broken.png');
+  await expect(page.getByRole('region', { name: '오늘의 사진' }).getByRole('alert')).toContainText('10MB');
+  await expect(page.getByLabel('오늘의 이야기')).toHaveValue('사진을 고르는 중에도 이 문장은 남아요.');
+});
+
+test('keeps the photo loading operation active when the editor is closed and reopened', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = Image.prototype.decode;
+    let pauseOnce = true;
+    Image.prototype.decode = async function () {
+      await original.call(this);
+      if (pauseOnce) {
+        pauseOnce = false;
+        await new Promise<void>((resolve) => window.addEventListener('resume-photo-test', () => resolve(), { once: true }));
+      }
+    };
+  });
+  await page.goto('/garden');
+  await expect(page.getByRole('status')).toContainText('일기장');
+  await page.keyboard.press('Enter');
+  await page.getByLabel('사진 추가').setInputFiles({
+    name: 'loading.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lV0AAAAASUVORK5CYII=', 'base64'),
+  });
+  await expect(page.getByLabel('사진 추가')).toBeDisabled();
+  await page.getByRole('button', { name: '정원으로 돌아가기', exact: true }).click();
+  await page.keyboard.press('Enter');
+  await expect(page.getByLabel('사진 추가')).toBeDisabled();
+  await page.evaluate(() => window.dispatchEvent(new Event('resume-photo-test')));
+  await expect(page.getByRole('img', { name: 'loading.png' })).toBeVisible();
+});

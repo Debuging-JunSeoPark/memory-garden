@@ -4,6 +4,7 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei/core/ContactShadows';
 import { OrthographicCamera } from '@react-three/drei/core/OrthographicCamera';
 import { useEffect } from 'react';
+import { GardenDiaryDesk } from './garden-diary-desk';
 import { GardenBookshelf } from './garden-bookshelf';
 import { GardenIsland } from './garden-island';
 import { GardenPlayer } from './garden-player';
@@ -11,7 +12,12 @@ import { shelfPosition, type Direction } from './garden-walk';
 
 type SceneCallbacks = { onUnavailable: () => void; onReady: () => void };
 
-function GardenCamera({ onUnavailable, onReady, shelf }: SceneCallbacks & { shelf: boolean }) {
+function GardenCamera({
+  onUnavailable,
+  onReady,
+  shelf,
+  diary,
+}: SceneCallbacks & { shelf: boolean; diary: boolean }) {
   const { size, gl } = useThree();
 
   useEffect(() => {
@@ -28,12 +34,16 @@ function GardenCamera({ onUnavailable, onReady, shelf }: SceneCallbacks & { shel
   return (
     <OrthographicCamera
       makeDefault
-      position={shelf ? [2, 2.1, 4] : [6.5, 6.8, 10]}
+      position={diary ? [0, 8, 5] : shelf ? [2, 2.1, 4] : [6.5, 6.8, 10]}
       near={0.1}
       far={60}
-      zoom={Math.min(size.width / (shelf ? 2.7 : 7.9), size.height / (shelf ? 3.2 : 7.7))}
+      zoom={Math.min(
+        size.width / (diary ? 11 : shelf ? 2.7 : 7.9),
+        size.height / (diary ? 8 : shelf ? 3.2 : 7.7),
+      )}
       onUpdate={(camera) => {
-        if (shelf) camera.lookAt(shelfPosition.x, 1.14, shelfPosition.z);
+        if (diary) camera.lookAt(0, 0, 0);
+        else if (shelf) camera.lookAt(shelfPosition.x, 1.14, shelfPosition.z);
         else camera.lookAt(0, 0.55, 0);
       }}
     />
@@ -51,6 +61,7 @@ export function GardenCanvas({
   onOpenDiary,
   nearWritingPlace,
   walking,
+  diary,
   joystick,
   nearShelf,
   shelf,
@@ -63,6 +74,7 @@ export function GardenCanvas({
   onOpenDiary: () => void;
   nearWritingPlace: boolean;
   walking: boolean;
+  diary: boolean;
   joystick: Direction;
   nearShelf: boolean;
   shelf: boolean;
@@ -78,7 +90,7 @@ export function GardenCanvas({
         gl={{ antialias: true, powerPreference: 'low-power' }}
         fallback={<span>정적 지도로도 정원을 둘러볼 수 있어요.</span>}
       >
-        <GardenCamera onUnavailable={onUnavailable} onReady={onReady} shelf={shelf} />
+        <GardenCamera onUnavailable={onUnavailable} onReady={onReady} shelf={shelf} diary={diary} />
         <hemisphereLight args={['#fff3dc', '#a8aa88', 2.4]} />
         <directionalLight
           position={[-3, 8, 4]}
@@ -101,7 +113,9 @@ export function GardenCanvas({
           onNearWritingPlace={onNearWritingPlace}
           onOpenDiary={onOpenDiary}
         />
-        {shelf ? (
+        {diary ? (
+          <GardenDiaryDesk />
+        ) : shelf ? (
           <GardenBookshelf onOpenGuide={onOpenGuide} />
         ) : (
           <GardenIsland
@@ -109,7 +123,7 @@ export function GardenCanvas({
             onOpenDiary={nearWritingPlace ? onOpenDiary : undefined}
           />
         )}
-        {!shelf && (
+        {!shelf && !diary && (
           <ContactShadows
             position={[0, -0.66, 0]}
             opacity={0.28}

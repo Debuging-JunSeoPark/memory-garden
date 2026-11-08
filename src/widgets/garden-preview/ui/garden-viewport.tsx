@@ -45,6 +45,9 @@ export function GardenViewport({ children }: { children: ReactNode }) {
     setDraft((current) => current ?? createDiaryDraft());
     setView('diary');
   }, []);
+  const updateDraft = useCallback((update: (current: DiaryDraft) => DiaryDraft) => {
+    setDraft((current) => (current ? update(current) : current));
+  }, []);
   const openBook = useCallback(() => setView('book'), []);
   const closeBook = () => setView('shelf');
 
@@ -80,6 +83,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
               onNearWritingPlace={setNearWritingPlace}
               nearWritingPlace={nearWritingPlace}
               walking={view === 'garden'}
+              diary={view === 'diary'}
               joystick={joystick}
               nearShelf={nearShelf}
               shelf={view === 'shelf' || view === 'book'}
@@ -167,8 +171,13 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           </div>
         </>
       )}
-      {view === 'diary' && draft && (
-        <DiaryEditor draft={draft} onChange={setDraft} onClose={() => setView('garden')} />
+      {draft && (
+        <DiaryEditor
+          active={view === 'diary'}
+          draft={draft}
+          onChange={updateDraft}
+          onClose={() => setView('garden')}
+        />
       )}
       {view === 'book' && (
         <article
