@@ -22,7 +22,7 @@ function PhotoPreview({ photo }: { photo: DiaryPhoto }) {
     <img
       ref={image}
       alt={photo.description || photo.file.name}
-      className="aspect-[4/3] w-full rounded-sm object-cover"
+      className="aspect-[4/3] w-full rounded-2xl object-cover"
     />
   );
 }
@@ -89,23 +89,23 @@ export function DiaryPhotos({
   }
 
   return (
-    <section aria-labelledby="diary-photos-title" className="mt-7">
+    <section aria-labelledby="diary-photos-title">
       <div className="flex items-center justify-between gap-3">
-        <h3 id="diary-photos-title" className="text-sm font-semibold text-ink">
+        <h3 id="diary-photos-title" className="text-xs font-medium text-[#5d6a57]">
           오늘의 사진
         </h3>
-        <span className="text-xs text-moss">
+        <span className="text-xs text-[#737c6e]">
           {photos.length} / {photoLimit}
         </span>
       </div>
-      <label className="relative mt-3 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-[#acb18d] bg-white/35 p-4 text-center text-moss hover:bg-white/60 focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-moss">
-        <span aria-hidden="true" className="text-3xl font-light">
+      <label className="relative mt-3 flex min-h-14 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl bg-[#f2f4ed] px-4 py-3 text-[#5d6a57] transition-colors hover:bg-[#e8ede1] focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-moss">
+        <span aria-hidden="true" className="text-xl font-light">
           ＋
         </span>
-        <span className="mt-1 text-sm font-medium">
+        <span className="text-sm font-medium">
           {busy ? '사진을 살펴보고 있어요…' : '사진 추가'}
         </span>
-        <span className="mt-2 text-[11px] leading-5 text-ink/60">
+        <span className="text-[11px] leading-5 text-[#737c6e] sm:ml-auto">
           JPG · PNG · WebP · GIF, 한 장에 10MB까지
         </span>
         <input
@@ -130,12 +130,9 @@ export function DiaryPhotos({
           {message}
         </p>
       )}
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {photos.map((photo, index) => (
-          <figure
-            key={photo.id}
-            className="rounded-sm border border-[#e5d8bd] bg-[#fffdf5] p-2 shadow-[2px_5px_10px_#74634718]"
-          >
+          <figure key={photo.id} className="min-w-0 rounded-2xl bg-[#f6f6f0] p-2.5">
             <PhotoPreview photo={photo} />
             <figcaption className="mt-2">
               <div className="flex items-center justify-between gap-2">
@@ -158,7 +155,7 @@ export function DiaryPhotos({
                 aria-label={`사진 ${index + 1} 설명`}
                 placeholder="이 사진은 어떤 순간인가요?"
                 value={photo.description}
-                className="min-h-11 w-full border-b border-[#d9cfb7] bg-transparent px-1 text-xs text-ink focus-visible:outline-2 focus-visible:outline-moss"
+                className="min-h-11 w-full rounded-lg border border-[#e0e5da] bg-[#fffef9] px-3 text-xs text-ink focus-visible:outline-2 focus-visible:outline-moss"
                 onChange={(event) => {
                   const description = event.target.value;
                   onChange((current) => ({

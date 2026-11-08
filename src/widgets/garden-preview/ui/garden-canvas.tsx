@@ -4,7 +4,7 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei/core/ContactShadows';
 import { OrthographicCamera } from '@react-three/drei/core/OrthographicCamera';
 import { useEffect } from 'react';
-import { GardenDiaryDesk } from './garden-diary-desk';
+import { GardenDiaryCorner } from './garden-diary-corner';
 import { GardenBookshelf } from './garden-bookshelf';
 import { GardenIsland } from './garden-island';
 import { GardenPlayer } from './garden-player';
@@ -114,7 +114,7 @@ export function GardenCanvas({
           onOpenDiary={onOpenDiary}
         />
         {diary ? (
-          <GardenDiaryDesk />
+          <GardenDiaryCorner />
         ) : shelf ? (
           <GardenBookshelf onOpenGuide={onOpenGuide} />
         ) : (
