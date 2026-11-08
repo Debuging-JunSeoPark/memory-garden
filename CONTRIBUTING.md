@@ -23,15 +23,18 @@
 
 ## 로컬 검사
 
-현재 저장소 기반 단계에서는 다음 명령을 실행합니다.
+PR을 만들기 전에 다음 명령을 실행합니다.
 
 ```bash
-pnpm install
-pnpm test
-pnpm validate:repo
+pnpm install --frozen-lockfile
+pnpm check
+pnpm exec playwright install chromium
+pnpm test:e2e
 ```
 
-애플리케이션이 초기화되면 lint, type-check, build 검사가 추가됩니다.
+`pnpm check`는 소스 포맷, lint, type-check, 전체 단위 테스트, 저장소 검증, build를 실행합니다. 브라우저 검사는 빌드 후 별도로 실행합니다. 개별 명령도 사용할 수 있습니다.
+
+pre-commit은 lint-staged로 변경된 소스만 포맷·린트하고, commit-msg는 commitlint를 실행합니다. 전체 검사는 CI에서 다시 실행합니다.
 
 ## 공개 저장소 주의사항
 
