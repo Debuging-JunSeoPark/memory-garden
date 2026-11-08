@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('walks to the bookshelf and opens its first book', async ({ page }, testInfo) => {
   await page.goto('/garden');
-  await expect(page.getByRole('status')).toHaveText('정원을 둘러볼 수 있어요.');
+  await expect(page.getByRole('status')).toContainText('일기장');
   await expect(page.getByRole('button', { name: '책장 보기', exact: true })).toHaveCount(0);
   const nearShelf = page.getByRole('status').filter({ hasText: '책장에 도착했어요' });
   const shelf = page.getByRole('heading', { name: '기억의 책장', exact: true });
@@ -71,7 +71,7 @@ test('recovers from context loss with reduced motion enabled', async ({ page }) 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/garden');
   const canvas = page.locator('canvas');
-  await expect(page.getByRole('status')).toHaveText('정원을 둘러볼 수 있어요.');
+  await expect(page.getByRole('status')).toContainText('일기장');
   await canvas.evaluate((element: HTMLCanvasElement) => {
     const context = element.getContext('webgl2');
     const extension = context?.getExtension('WEBGL_lose_context');

@@ -29,7 +29,9 @@ export function GardenPreview() {
                 <dd>한 달에 한 권, 책장에서 그달의 일기를 날짜별로 다시 읽을 수 있어요.</dd>
               </div>
             </dl>
-            <p className="mt-4 text-moss">일기 쓰기는 이후에 열려요.</p>
+            <p className="mt-4 text-moss">
+              입구의 일기장에서 이야기를 입력해 볼 수 있어요. 기록 저장은 다음 단계에 열려요.
+            </p>
             <Link
               href="/"
               className="inline-flex min-h-11 items-center underline underline-offset-4"
