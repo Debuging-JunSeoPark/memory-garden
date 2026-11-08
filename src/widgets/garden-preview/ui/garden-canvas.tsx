@@ -47,6 +47,10 @@ export function GardenCanvas({
   onNearShelf,
   onFirstMove,
   onOpenShelf,
+  onNearWritingPlace,
+  onOpenDiary,
+  nearWritingPlace,
+  walking,
   joystick,
   nearShelf,
   shelf,
@@ -55,6 +59,10 @@ export function GardenCanvas({
   onNearShelf: (near: boolean) => void;
   onFirstMove: () => void;
   onOpenShelf: () => void;
+  onNearWritingPlace: (near: boolean) => void;
+  onOpenDiary: () => void;
+  nearWritingPlace: boolean;
+  walking: boolean;
   joystick: Direction;
   nearShelf: boolean;
   shelf: boolean;
@@ -85,16 +93,21 @@ export function GardenCanvas({
           shadow-radius={3}
         />
         <GardenPlayer
-          active={!shelf}
+          active={walking}
           joystick={joystick}
           onNearShelf={onNearShelf}
           onFirstMove={onFirstMove}
           onOpenShelf={onOpenShelf}
+          onNearWritingPlace={onNearWritingPlace}
+          onOpenDiary={onOpenDiary}
         />
         {shelf ? (
           <GardenBookshelf onOpenGuide={onOpenGuide} />
         ) : (
-          <GardenIsland onOpenShelf={nearShelf ? onOpenShelf : undefined} />
+          <GardenIsland
+            onOpenShelf={nearShelf ? onOpenShelf : undefined}
+            onOpenDiary={nearWritingPlace ? onOpenDiary : undefined}
+          />
         )}
         {!shelf && (
           <ContactShadows

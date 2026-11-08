@@ -3,6 +3,7 @@ type Position = { x: number; z: number };
 
 export const still = { x: 0, y: 0 };
 export const shelfPosition = { x: 0.22, z: -2.12 };
+export const writingPosition = { x: 0.85, z: 2 };
 export const spawnPosition = { x: 0, z: 1.7 };
 
 export const directionKeys: Readonly<Record<string, Direction>> = {
@@ -22,6 +23,7 @@ const trunks = [
 ];
 
 const obstacles = [
+  { ...writingPosition, halfWidth: 0.4, halfDepth: 0.32 },
   { ...shelfPosition, halfWidth: 0.96, halfDepth: 0.59 },
   { x: -1.45, z: 0.65, halfWidth: 0.74, halfDepth: 0.43 },
   { x: 1.55, z: 0.7, halfWidth: 0.74, halfDepth: 0.99 },
@@ -39,6 +41,10 @@ function canWalk(x: number, z: number) {
 
 export function isNearShelf({ x, z }: Position) {
   return Math.hypot(x - shelfPosition.x, z - (shelfPosition.z + 0.83)) < 0.74;
+}
+
+export function isNearWritingPlace({ x, z }: Position) {
+  return Math.hypot(x - (writingPosition.x - 0.4), z - writingPosition.z) < 0.7;
 }
 
 export function walk(position: Position, direction: Direction, delta: number) {

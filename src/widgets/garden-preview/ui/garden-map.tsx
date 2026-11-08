@@ -2,10 +2,14 @@ import type { Ref } from 'react';
 
 export function GardenMap({
   onOpenShelf,
+  onOpenDiary,
   actionRef,
+  writingRef,
 }: {
   onOpenShelf: () => void;
+  onOpenDiary: () => void;
   actionRef?: Ref<HTMLButtonElement>;
+  writingRef?: Ref<HTMLButtonElement>;
 }) {
   return (
     <div className="flex h-full w-full items-center justify-center px-6 py-16">
@@ -97,7 +101,21 @@ export function GardenMap({
           >
             N ↑
           </text>
+          <g transform="translate(232 280)">
+            <rect x="-19" y="-12" width="38" height="27" rx="3" fill="#b87555" />
+            <path d="M-15 -8H-2V10H-15ZM2 -8H15V10H2Z" fill="#fff0cb" />
+          </g>
+          <text x="232" y="320" fill="#293e32" textAnchor="middle" fontSize="13">
+            일기장
+          </text>
         </svg>
+        <button
+          type="button"
+          ref={writingRef}
+          aria-label="지도에서 일기장 열기"
+          onClick={onOpenDiary}
+          className="absolute top-[78%] left-[58%] min-h-11 min-w-12 -translate-1/2 cursor-pointer rounded-xl border border-transparent hover:border-moss focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-moss"
+        />
         <button
           ref={actionRef}
           type="button"

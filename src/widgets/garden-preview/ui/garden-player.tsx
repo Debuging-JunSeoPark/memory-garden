@@ -4,6 +4,7 @@ import type { Group } from 'three';
 import {
   directionKeys,
   isNearShelf,
+  isNearWritingPlace,
   spawnPosition,
   still,
   walk,
@@ -16,16 +17,21 @@ export function GardenPlayer({
   onNearShelf,
   onFirstMove,
   onOpenShelf,
+  onNearWritingPlace,
+  onOpenDiary,
 }: {
   active: boolean;
   joystick: Direction;
   onNearShelf: (near: boolean) => void;
   onFirstMove: () => void;
   onOpenShelf: () => void;
+  onNearWritingPlace: (near: boolean) => void;
+  onOpenDiary: () => void;
 }) {
   const model = useRef<Group>(null);
   const keys = useRef(new Set<string>());
   const nearby = useRef(false);
+  const nearWriting = useRef(isNearWritingPlace(spawnPosition));
   const moved = useRef(false);
   const invalidate = useThree((state) => state.invalidate);
 
@@ -35,11 +41,12 @@ export function GardenPlayer({
     const clear = () => pressed.clear();
     const press = (event: KeyboardEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
-      if (event.key === 'Enter' && nearby.current && !event.repeat) {
+      if (event.key === 'Enter' && (nearby.current || nearWriting.current) && !event.repeat) {
         const target = event.target;
         if (!(target instanceof Element) || !target.closest('button, a, input, select, textarea')) {
           event.preventDefault();
-          onOpenShelf();
+          if (nearby.current) onOpenShelf();
+          else onOpenDiary();
         }
         return;
       }
@@ -66,7 +73,7 @@ export function GardenPlayer({
       window.removeEventListener('blur', clear);
       document.removeEventListener('visibilitychange', clear);
     };
-  }, [active, invalidate, onOpenShelf]);
+  }, [active, invalidate, onOpenShelf, onOpenDiary]);
 
   useEffect(() => {
     if (active) invalidate();
@@ -96,6 +103,11 @@ export function GardenPlayer({
     if (near !== nearby.current) {
       nearby.current = near;
       onNearShelf(near);
+    }
+    const nearDiary = isNearWritingPlace(next);
+    if (nearDiary !== nearWriting.current) {
+      nearWriting.current = nearDiary;
+      onNearWritingPlace(nearDiary);
     }
     invalidate();
   });

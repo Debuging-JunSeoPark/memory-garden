@@ -1,4 +1,5 @@
 import { GardenBookshelf } from './garden-bookshelf';
+import { GardenWritingPlace } from './garden-writing-place';
 
 type Point = [number, number, number];
 
@@ -79,7 +80,13 @@ function Flower({ position, color }: { position: Point; color: string }) {
   );
 }
 
-export function GardenIsland({ onOpenShelf }: { onOpenShelf?: () => void }) {
+export function GardenIsland({
+  onOpenShelf,
+  onOpenDiary,
+}: {
+  onOpenShelf?: () => void;
+  onOpenDiary?: () => void;
+}) {
   return (
     <group>
       <mesh position={[0, -0.2225, 0]} receiveShadow castShadow>
@@ -109,6 +116,7 @@ export function GardenIsland({ onOpenShelf }: { onOpenShelf?: () => void }) {
       <Tree position={[-1.55, 0.12, -1.2]} />
       <Tree position={[2.05, 0.12, -1.24]} scale={0.61} />
       <GardenBookshelf onOpenShelf={onOpenShelf} />
+      <GardenWritingPlace onOpen={onOpenDiary} />
       <Bench />
       <mesh position={[1.55, 0.15, 0.7]} receiveShadow>
         <boxGeometry args={[1.05, 0.12, 1.55]} />
