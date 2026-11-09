@@ -28,7 +28,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
+    "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "^4.3.3",
