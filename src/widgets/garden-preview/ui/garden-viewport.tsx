@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { DiaryEditor, createDiaryDraft, type DiaryDraft } from '@/features/write-diary';
+import { DiaryEditor } from '@/features/write-diary';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { GardenJoystick } from './garden-joystick';
 import { GardenMap } from './garden-map';
@@ -22,7 +22,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [nearShelf, setNearShelf] = useState(false);
   const [nearWritingPlace, setNearWritingPlace] = useState(isNearWritingPlace(spawnPosition));
-  const [draft, setDraft] = useState<DiaryDraft | null>(null);
+  const [diaryOpened, setDiaryOpened] = useState(false);
   const [hasMoved, setHasMoved] = useState(false);
   const [joystick, setJoystick] = useState(still);
   const stage = useRef<HTMLElement>(null);
@@ -42,11 +42,8 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   }, []);
   const openDiary = useCallback(() => {
     setJoystick(still);
-    setDraft((current) => current ?? createDiaryDraft());
+    setDiaryOpened(true);
     setView('diary');
-  }, []);
-  const updateDraft = useCallback((update: (current: DiaryDraft) => DiaryDraft) => {
-    setDraft((current) => (current ? update(current) : current));
   }, []);
   const openBook = useCallback(() => setView('book'), []);
   const closeBook = () => setView('shelf');
@@ -171,14 +168,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           </div>
         </>
       )}
-      {draft && (
-        <DiaryEditor
-          active={view === 'diary'}
-          draft={draft}
-          onChange={updateDraft}
-          onClose={() => setView('garden')}
-        />
-      )}
+      {diaryOpened && <DiaryEditor active={view === 'diary'} onClose={() => setView('garden')} />}
       {view === 'book' && (
         <article
           aria-label="정원 안내서"

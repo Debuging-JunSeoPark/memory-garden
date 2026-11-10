@@ -1,20 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import type { DiaryDraft } from '../model/diary-draft';
+import { useEffect, useRef, useState } from 'react';
+import { useDiaryEntry } from '../model/use-diary-entry';
 import { DiaryPhotos } from './diary-photos';
 
-export function DiaryEditor({
-  draft,
-  active,
-  onChange,
-  onClose,
-}: {
-  draft: DiaryDraft;
-  active: boolean;
-  onChange: (update: (current: DiaryDraft) => DiaryDraft) => void;
-  onClose: () => void;
-}) {
+export function DiaryEditor({ active, onClose }: { active: boolean; onClose: () => void }) {
+  const { date, draft, loadError, notice, saving, save, selectDate, updateDraft, retryLoad } =
+    useDiaryEntry();
+  const [photosBusy, setPhotosBusy] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (active) heading.current?.focus({ preventScroll: true });
@@ -52,52 +45,84 @@ export function DiaryEditor({
             <span className="shrink-0">기록 날짜</span>
             <input
               type="date"
-              value={draft.date}
-              onChange={(event) => {
-                const date = event.target.value;
-                onChange((current) => ({ ...current, date }));
-              }}
+              value={date}
+              disabled={saving || photosBusy}
+              onChange={(event) => selectDate(event.target.value)}
               className="min-h-11 min-w-0 rounded-lg bg-transparent text-sm text-[#424e43] focus-visible:outline-2 focus-visible:outline-moss"
             />
           </label>
-          <div
-            role="group"
-            aria-label="일기 입력"
-            aria-describedby="diary-draft-notice"
-            className="mt-8 grid gap-7"
-          >
-            <label>
-              <span className="sr-only">제목</span>
-              <input
-                type="text"
-                value={draft.title}
-                placeholder="오늘의 제목, 없어도 괜찮아요"
-                onChange={(event) => {
-                  const title = event.target.value;
-                  onChange((current) => ({ ...current, title }));
-                }}
-                className="min-h-12 w-full rounded-lg bg-transparent text-xl font-medium tracking-tight text-[#424e43] placeholder:font-normal placeholder:text-[#899180] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-moss sm:text-2xl"
+          {loadError && (
+            <div className="mt-5 text-sm">
+              <p role="alert">이 날짜의 일기를 불러오지 못했어요.</p>
+              <button type="button" onClick={retryLoad} className="min-h-11 underline">
+                다시 불러오기
+              </button>
+            </div>
+          )}
+          {!draft && !loadError && (
+            <p role="status" className="mt-5 text-sm">
+              일기를 불러오는 중이에요.
+            </p>
+          )}
+          <fieldset disabled={!draft || saving} className="min-w-0">
+            <div
+              role="group"
+              aria-label="일기 입력"
+              aria-describedby="diary-draft-notice"
+              className="mt-8 grid gap-7"
+            >
+              <label>
+                <span className="sr-only">제목</span>
+                <input
+                  type="text"
+                  value={draft?.title ?? ''}
+                  placeholder="오늘의 제목, 없어도 괜찮아요"
+                  onChange={(event) => {
+                    const title = event.target.value;
+                    updateDraft((current) => ({ ...current, title }));
+                  }}
+                  className="min-h-12 w-full rounded-lg bg-transparent text-xl font-medium tracking-tight text-[#424e43] placeholder:font-normal placeholder:text-[#899180] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-moss sm:text-2xl"
+                />
+              </label>
+              <label>
+                <span className="sr-only">오늘의 이야기</span>
+                <textarea
+                  value={draft?.body ?? ''}
+                  placeholder="오늘은 어떤 하루였나요?"
+                  rows={9}
+                  onChange={(event) => {
+                    const body = event.target.value;
+                    updateDraft((current) => ({ ...current, body }));
+                  }}
+                  className="min-h-60 w-full resize-y rounded-lg bg-transparent text-[15px] leading-8 text-[#424e43] placeholder:text-[#8b9485] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-moss sm:min-h-72"
+                />
+              </label>
+            </div>
+            <div className="mt-5 border-t border-[#edf0e7] pt-6">
+              <DiaryPhotos
+                key={date}
+                photos={draft?.photos ?? []}
+                onChange={updateDraft}
+                onBusyChange={setPhotosBusy}
               />
-            </label>
-            <label>
-              <span className="sr-only">오늘의 이야기</span>
-              <textarea
-                value={draft.body}
-                placeholder="오늘은 어떤 하루였나요?"
-                rows={9}
-                onChange={(event) => {
-                  const body = event.target.value;
-                  onChange((current) => ({ ...current, body }));
-                }}
-                className="min-h-60 w-full resize-y rounded-lg bg-transparent text-[15px] leading-8 text-[#424e43] placeholder:text-[#8b9485] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-moss sm:min-h-72"
-              />
-            </label>
-          </div>
-          <div className="mt-5 border-t border-[#edf0e7] pt-6">
-            <DiaryPhotos photos={draft.photos} onChange={onChange} />
-          </div>
+            </div>
+            <button
+              type="button"
+              disabled={photosBusy}
+              onClick={() => void save()}
+              className="mt-6 min-h-11 rounded-full bg-[#52614f] px-5 text-sm font-medium text-white hover:bg-[#424e43] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-moss disabled:opacity-50"
+            >
+              {saving ? '저장 중…' : '일기 저장'}
+            </button>
+          </fieldset>
+          {notice && (
+            <p role={notice.error ? 'alert' : 'status'} className="mt-3 text-sm">
+              {notice.text}
+            </p>
+          )}
           <p id="diary-draft-notice" className="mt-6 text-xs leading-6 text-[#737c6e]">
-            글과 사진은 이 페이지에서 이어 쓸 수 있어요. 새로고침하면 사라져요.
+            저장한 일기는 이 브라우저에서 다시 열 수 있어요. 저장하기 전의 변경은 새로고침하면
+            사라져요.
           </p>
         </div>
       </div>
