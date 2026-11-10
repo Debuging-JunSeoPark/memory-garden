@@ -52,3 +52,20 @@ export function readDiaryEntry(date: string) {
 export async function saveDiaryEntry(draft: DiaryDraft) {
   await withEntryStore('readwrite', (store) => store.put(draft));
 }
+
+export async function readDiaryMonths() {
+  const keys = await withEntryStore('readonly', (store) => store.getAllKeys());
+  const dates = keys
+    .filter((key): key is string => typeof key === 'string')
+    .sort((left, right) => right.localeCompare(left, 'en', { numeric: true }));
+  const months = new Map<string, string[]>();
+
+  for (const date of dates) {
+    const month = date.slice(0, date.lastIndexOf('-'));
+    const group = months.get(month);
+    if (group) group.push(date);
+    else months.set(month, [date]);
+  }
+
+  return Array.from(months, ([month, dates]) => ({ month, dates }));
+}

@@ -3,10 +3,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDiaryEntry } from '../model/use-diary-entry';
 import { DiaryPhotos } from './diary-photos';
+import { SavedDiaryDates } from './saved-diary-dates';
 
 export function DiaryEditor({ active, onClose }: { active: boolean; onClose: () => void }) {
-  const { date, draft, loadError, notice, saving, save, selectDate, updateDraft, retryLoad } =
-    useDiaryEntry();
+  const {
+    date,
+    draft,
+    loadError,
+    notice,
+    saving,
+    savedRevision,
+    save,
+    selectDate,
+    updateDraft,
+    retryLoad,
+  } = useDiaryEntry();
   const [photosBusy, setPhotosBusy] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -51,6 +62,13 @@ export function DiaryEditor({ active, onClose }: { active: boolean; onClose: () 
               className="min-h-11 min-w-0 rounded-lg bg-transparent text-sm text-[#424e43] focus-visible:outline-2 focus-visible:outline-moss"
             />
           </label>
+          <SavedDiaryDates
+            active={active}
+            date={date}
+            disabled={saving || photosBusy}
+            revision={savedRevision}
+            onSelect={selectDate}
+          />
           {loadError && (
             <div className="mt-5 text-sm">
               <p role="alert">이 날짜의 일기를 불러오지 못했어요.</p>

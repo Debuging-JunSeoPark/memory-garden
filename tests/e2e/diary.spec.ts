@@ -181,3 +181,39 @@ test('rejects blank writing and keeps the draft when a storage transaction abort
   await expect(body).toHaveValue('저장 오류에도 남을 글');
   await expect(save).toBeEnabled();
 });
+
+test('groups saved dates by month without adding drafts or duplicate dates', async ({ page }) => {
+  await page.goto('/garden');
+  await expect(page.getByRole('status')).toContainText('일기장');
+  await page.keyboard.press('Enter');
+
+  const date = page.getByLabel('기록 날짜');
+  const body = page.getByLabel('오늘의 이야기');
+  const save = page.getByRole('button', { name: '일기 저장', exact: true });
+  const savedDates = page.getByLabel('저장한 날짜');
+  const entries = [
+    ['2026-10-31', '지난달 기록'],
+    ['2026-11-01', '이번 달 첫 기록'],
+    ['2026-11-09', '최근 기록'],
+    ['2026-11-09', '수정한 최근 기록'],
+  ];
+  for (const [day, text] of entries) {
+    await date.fill(day);
+    await body.fill(text);
+    await save.click();
+    await expect(page.getByText('일기를 저장했어요.')).toBeVisible();
+  }
+
+  await date.fill('2026-11-10');
+  await body.fill('미저장 초안');
+  await expect(savedDates.locator('optgroup')).toHaveCount(2);
+  await expect(savedDates.locator('optgroup option')).toHaveText([
+    '2026-11-09', '2026-11-01', '2026-10-31',
+  ]);
+
+  await page.reload();
+  await expect(page.getByRole('status')).toContainText('일기장');
+  await page.keyboard.press('Enter');
+  await savedDates.selectOption('2026-11-09');
+  await expect(body).toHaveValue('수정한 최근 기록');
+});
