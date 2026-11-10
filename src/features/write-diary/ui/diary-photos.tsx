@@ -7,7 +7,7 @@ const photoLimit = 8;
 const sizeLimit = 10 * 1024 * 1024;
 const imageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
-function PhotoPreview({ photo }: { photo: DiaryPhoto }) {
+export function PhotoPreview({ photo }: { photo: DiaryPhoto }) {
   const image = useRef<HTMLImageElement>(null);
 
   useEffect(() => {

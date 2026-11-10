@@ -51,9 +51,23 @@ function Bench() {
 
 const petalAngles = [0, 1.26, 2.51, 3.77, 5.03];
 
-function Flower({ position, color }: { position: Point; color: string }) {
+function Flower({
+  position,
+  color,
+  onOpen,
+}: {
+  position: Point;
+  color: string;
+  onOpen: () => void;
+}) {
   return (
-    <group position={position}>
+    <group
+      position={position}
+      onClick={(event) => {
+        event.stopPropagation();
+        onOpen();
+      }}
+    >
       <mesh position={[0, 0.2, 0]}>
         <cylinderGeometry args={[0.018, 0.018, 0.4, 4]} />
         <meshStandardMaterial color="#66844b" />
@@ -83,9 +97,15 @@ function Flower({ position, color }: { position: Point; color: string }) {
 export function GardenIsland({
   onOpenShelf,
   onOpenDiary,
+  months,
+  dates,
+  onOpenMemory,
 }: {
   onOpenShelf?: () => void;
   onOpenDiary?: () => void;
+  months: string[];
+  dates: string[];
+  onOpenMemory: (date: string) => void;
 }) {
   return (
     <group>
@@ -115,7 +135,7 @@ export function GardenIsland({
       ))}
       <Tree position={[-1.55, 0.12, -1.2]} />
       <Tree position={[2.05, 0.12, -1.24]} scale={0.61} />
-      <GardenBookshelf onOpenShelf={onOpenShelf} />
+      <GardenBookshelf months={months} onOpenShelf={onOpenShelf} />
       <GardenWritingPlace onOpen={onOpenDiary} />
       <Bench />
       <mesh position={[1.55, 0.15, 0.7]} receiveShadow>
@@ -134,15 +154,14 @@ export function GardenIsland({
           <meshStandardMaterial color="#b38361" />
         </mesh>
       ))}
-      {[0, 1, 2].flatMap((row) =>
-        [0, 1].map((column) => (
-          <Flower
-            key={`${row}-${column}`}
-            position={[1.27 + column * 0.5, 0.22, 0.2 + row * 0.5]}
-            color={(row + column) % 2 ? '#e6ad9b' : '#efd18a'}
-          />
-        )),
-      )}
+      {dates.slice(0, 6).map((date, index) => (
+        <Flower
+          key={date}
+          position={[1.27 + (index % 2) * 0.5, 0.22, 0.2 + Math.floor(index / 2) * 0.5]}
+          color={index % 2 ? '#e6ad9b' : '#efd18a'}
+          onOpen={() => onOpenMemory(date)}
+        />
+      ))}
       {[
         [-2.35, 0.16, 0],
         [2.3, 0.18, -0.4],
