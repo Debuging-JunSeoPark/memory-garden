@@ -54,6 +54,10 @@ export function GardenCanvas({
   onUnavailable,
   onReady,
   onOpenGuide,
+  months,
+  dates,
+  onOpenMonth,
+  onOpenMemory,
   onNearShelf,
   onFirstMove,
   onOpenShelf,
@@ -67,6 +71,10 @@ export function GardenCanvas({
   shelf,
 }: SceneCallbacks & {
   onOpenGuide: () => void;
+  months: string[];
+  dates: string[];
+  onOpenMonth: (month: string) => void;
+  onOpenMemory: (date: string) => void;
   onNearShelf: (near: boolean) => void;
   onFirstMove: () => void;
   onOpenShelf: () => void;
@@ -116,9 +124,12 @@ export function GardenCanvas({
         {diary ? (
           <GardenDiaryCorner />
         ) : shelf ? (
-          <GardenBookshelf onOpenGuide={onOpenGuide} />
+          <GardenBookshelf months={months} onOpenGuide={onOpenGuide} onOpenMonth={onOpenMonth} />
         ) : (
           <GardenIsland
+            months={months}
+            dates={dates}
+            onOpenMemory={onOpenMemory}
             onOpenShelf={nearShelf ? onOpenShelf : undefined}
             onOpenDiary={nearWritingPlace ? onOpenDiary : undefined}
           />

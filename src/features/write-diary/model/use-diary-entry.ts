@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createDiaryDraft, type DiaryDraft } from './diary-draft';
 import { readDiaryEntry, saveDiaryEntry } from './diary-storage';
 
-export function useDiaryEntry() {
+export function useDiaryEntry(onSaved?: () => void) {
   const [date, setDate] = useState(() => createDiaryDraft().date);
   const [drafts, setDrafts] = useState<Record<string, DiaryDraft>>({});
   const [loadError, setLoadError] = useState(false);
@@ -62,6 +62,7 @@ export function useDiaryEntry() {
     try {
       await saveDiaryEntry(draft);
       setSavedRevision((previous) => previous + 1);
+      onSaved?.();
       setNotice({ text: '일기를 저장했어요.' });
     } catch {
       setNotice({

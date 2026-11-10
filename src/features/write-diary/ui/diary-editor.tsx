@@ -5,7 +5,15 @@ import { useDiaryEntry } from '../model/use-diary-entry';
 import { DiaryPhotos } from './diary-photos';
 import { SavedDiaryDates } from './saved-diary-dates';
 
-export function DiaryEditor({ active, onClose }: { active: boolean; onClose: () => void }) {
+export function DiaryEditor({
+  active,
+  onClose,
+  onSaved,
+}: {
+  active: boolean;
+  onClose: () => void;
+  onSaved?: () => void;
+}) {
   const {
     date,
     draft,
@@ -17,7 +25,7 @@ export function DiaryEditor({ active, onClose }: { active: boolean; onClose: () 
     selectDate,
     updateDraft,
     retryLoad,
-  } = useDiaryEntry();
+  } = useDiaryEntry(onSaved);
   const [photosBusy, setPhotosBusy] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
