@@ -9,6 +9,7 @@ export function useDiaryEntry() {
   const [attempt, setAttempt] = useState(0);
   const [notice, setNotice] = useState<{ text: string; error?: boolean }>();
   const [saving, setSaving] = useState(false);
+  const [savedRevision, setSavedRevision] = useState(0);
   const pendingSave = useRef(false);
   const draft = drafts[date];
   const loaded = Boolean(draft);
@@ -60,6 +61,7 @@ export function useDiaryEntry() {
     setNotice(undefined);
     try {
       await saveDiaryEntry(draft);
+      setSavedRevision((previous) => previous + 1);
       setNotice({ text: '일기를 저장했어요.' });
     } catch {
       setNotice({
@@ -78,6 +80,7 @@ export function useDiaryEntry() {
     loadError,
     notice,
     saving,
+    savedRevision,
     save,
     selectDate,
     updateDraft,
