@@ -31,7 +31,7 @@
 
 ## 로컬 실행
 
-Node.js 20.19 이상과 `packageManager`에 고정된 pnpm 12.1.0을 사용합니다. `.nvmrc`는 Node 20 계열을 선택합니다.
+Node.js 26 이상과 `packageManager`에 고정된 pnpm 12.1.0을 사용합니다. `.nvmrc`는 Node 26 계열을 선택합니다.
 
 ```bash
 pnpm install --frozen-lockfile
