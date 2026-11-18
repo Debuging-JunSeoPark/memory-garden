@@ -7,7 +7,7 @@ const photoLimit = 8;
 const sizeLimit = 10 * 1024 * 1024;
 const imageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
-function PhotoPreview({ photo }: { photo: DiaryPhoto }) {
+export function PhotoPreview({ photo }: { photo: DiaryPhoto }) {
   const image = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -44,8 +44,10 @@ async function canPreview(file: File) {
 export function DiaryPhotos({
   photos,
   onChange,
+  onBusyChange,
 }: {
   photos: DiaryPhoto[];
+  onBusyChange: (busy: boolean) => void;
   onChange: (update: (draft: DiaryDraft) => DiaryDraft) => void;
 }) {
   const [busy, setBusy] = useState(false);
@@ -56,6 +58,7 @@ export function DiaryPhotos({
     if (pending.current) return;
     pending.current = true;
     setBusy(true);
+    onBusyChange(true);
     setMessage('');
     const accepted: DiaryPhoto[] = [];
     const problems: string[] = [];
@@ -85,6 +88,7 @@ export function DiaryPhotos({
     } finally {
       pending.current = false;
       setBusy(false);
+      onBusyChange(false);
     }
   }
 

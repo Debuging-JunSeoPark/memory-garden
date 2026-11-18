@@ -18,6 +18,7 @@ const canopyOptions: ExtrudeGeometryOptions = {
 
 const rows = [1.08, 0.59, 0.1];
 const slotsPerRow = 5;
+const monthColors = ['#769c9a', '#9c839f', '#8ca474', '#cb9872'];
 const slotPitch = 0.24;
 const shelfThickness = 0.075;
 const bookWidth = 0.19;
@@ -37,9 +38,13 @@ function bookSlot(index: number): [number, number, number] {
 export function GardenBookshelf({
   onOpenShelf,
   onOpenGuide,
+  months = [],
+  onOpenMonth,
 }: {
   onOpenShelf?: () => void;
   onOpenGuide?: () => void;
+  months?: string[];
+  onOpenMonth?: (month: string) => void;
 }) {
   return (
     <group position={[shelfPosition.x, 0.12, shelfPosition.z]} onClick={onOpenShelf}>
@@ -85,6 +90,29 @@ export function GardenBookshelf({
           <meshStandardMaterial color="#ad5748" />
         </mesh>
       </group>
+      {months.slice(0, rows.length * slotsPerRow - 1).map((month, index) => (
+        <group
+          key={month}
+          position={bookSlot(index + 1)}
+          onClick={
+            onOpenMonth
+              ? (event) => {
+                  event.stopPropagation();
+                  onOpenMonth(month);
+                }
+              : undefined
+          }
+        >
+          <mesh castShadow>
+            <boxGeometry args={[bookWidth, bookHeight, bookDepth]} />
+            <meshStandardMaterial color={monthColors[index % monthColors.length]} />
+          </mesh>
+          <mesh position={[0, 0.05, 0.122]}>
+            <boxGeometry args={[0.11, 0.085, 0.012]} />
+            <meshStandardMaterial color="#f4e7c6" />
+          </mesh>
+        </group>
+      ))}
       <group position={[-0.61, 0.08, 0.4]}>
         {[0.025, 0.22].map((y) => (
           <mesh key={y} position={[0, y, 0]} castShadow>
