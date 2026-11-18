@@ -77,6 +77,8 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   const [flowerPage, setFlowerPage] = useState(0);
   const [collection, setCollection] = useState<string | null>(null);
   const [memoryDate, setMemoryDate] = useState<string | null>(null);
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [gathering, setGathering] = useState(false);
   const overlayHeading = useRef<HTMLHeadingElement>(null);
   const origin = useRef<HTMLElement | null>(null);
   const stage = useRef<HTMLElement>(null);
@@ -131,7 +133,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (collection) overlayHeading.current?.focus({ preventScroll: true });
-  }, [collection, memoryDate]);
+  }, [collection, memoryDate, gathering]);
 
   const refreshRecords = () => setRevision((previous) => previous + 1);
   const dates = months.flatMap((month) => month.dates);
@@ -155,6 +157,8 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   function openCollection(next: string, date: string | null = null) {
     origin.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setJoystick(still);
+    setSelectedDates([]);
+    setGathering(false);
     setCollection(next);
     setMemoryDate(date);
   }
@@ -337,14 +341,35 @@ export function GardenViewport({ children }: { children: ReactNode }) {
                 ref={overlayHeading}
                 className="text-lg font-semibold outline-none"
               >
-                {memoryDate ??
-                  (collection === 'flowers' ? '기억의 꽃' : `${monthLabel(collection)} 책`)}
+                {gathering
+                  ? '선택한 기록 모아보기'
+                  : (memoryDate ??
+                    (collection === 'flowers' ? '기억의 꽃' : `${monthLabel(collection)} 책`))}
               </h2>
               <button type="button" className={controlClass} onClick={closeCollection}>
                 닫기
               </button>
             </div>
-            {memoryDate ? (
+            {gathering ? (
+              <>
+                <p className="mb-6 text-sm text-moss">{selectedDates.length}일의 기록 · 날짜순</p>
+                <div className="grid gap-8">
+                  {[...selectedDates].sort().map((date) => (
+                    <section key={date} aria-label={date} className="border-b border-moss/15 pb-6">
+                      <h3 className="mb-4 text-lg font-semibold">{date}</h3>
+                      <DiaryMemory date={date} />
+                    </section>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className={`${controlClass} mt-6`}
+                  onClick={() => setGathering(false)}
+                >
+                  날짜 선택으로
+                </button>
+              </>
+            ) : memoryDate ? (
               <>
                 <DiaryMemory key={memoryDate} date={memoryDate} />
                 <button
@@ -356,19 +381,56 @@ export function GardenViewport({ children }: { children: ReactNode }) {
                 </button>
               </>
             ) : (
-              <ul className="grid gap-2">
-                {collectionDates.map((date) => (
-                  <li key={date}>
+              <>
+                {collection !== 'flowers' && (
+                  <div className="mb-5 flex flex-wrap items-center gap-3">
+                    <p role="status" className="text-sm">
+                      {selectedDates.length}일 선택 · 최대 14일
+                    </p>
                     <button
                       type="button"
-                      className={controlClass}
-                      onClick={() => setMemoryDate(date)}
+                      className={`${controlClass} disabled:opacity-50`}
+                      disabled={selectedDates.length === 0}
+                      onClick={() => setGathering(true)}
                     >
-                      {date} 기록 열기
+                      선택한 기록 모아보기
                     </button>
-                  </li>
-                ))}
-              </ul>
+                  </div>
+                )}
+                <ul className="grid gap-2">
+                  {collectionDates.map((date) => (
+                    <li key={date} className="flex flex-wrap items-center gap-3">
+                      {collection !== 'flowers' && (
+                        <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            aria-label={`${date} 선택`}
+                            checked={selectedDates.includes(date)}
+                            disabled={selectedDates.length >= 14 && !selectedDates.includes(date)}
+                            onChange={(event) => {
+                              const checked = event.target.checked;
+                              setSelectedDates((previous) =>
+                                checked
+                                  ? [...previous, date]
+                                  : previous.filter((item) => item !== date),
+                              );
+                            }}
+                            className="size-5 accent-moss"
+                          />
+                          선택
+                        </label>
+                      )}
+                      <button
+                        type="button"
+                        className={controlClass}
+                        onClick={() => setMemoryDate(date)}
+                      >
+                        {date} 기록 열기
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
           </div>
         </article>
