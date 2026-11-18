@@ -7,7 +7,7 @@
   "type": "module",
   "packageManager": "pnpm@12.1.0",
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=26.0.0"
   },
   "scripts": {
     "agent:hook": "node agents/hooks/runner.js",
@@ -39,7 +39,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "16.4.6",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2",
+    "lint-staged": "^17.6.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "^5.9.3",
