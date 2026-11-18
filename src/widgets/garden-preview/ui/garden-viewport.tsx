@@ -1,5 +1,7 @@
 'use client';
 
+import { previewMonths } from './garden-plots';
+
 import dynamic from 'next/dynamic';
 import { DiaryEditor, DiaryMemory, readDiaryMonths } from '@/features/write-diary';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
@@ -62,6 +64,8 @@ function RecordPages({
 }
 
 export function GardenViewport({ children }: { children: ReactNode }) {
+  const [region, setRegion] = useState(0);
+  const [plotMonths] = useState(previewMonths);
   const [view, setView] = useState<'garden' | 'shelf' | 'book' | 'diary'>('garden');
   const [available, setAvailable] = useState(true);
   const [ready, setReady] = useState(false);
@@ -191,6 +195,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
             <GardenCanvas
               onUnavailable={showMap}
               onReady={markReady}
+              onRegionChange={setRegion}
               onOpenGuide={openBook}
               months={visibleMonths.map(({ month }) => month)}
               dates={visibleDates}
@@ -218,6 +223,14 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           />
         ) : null}
       </div>
+      {view === 'garden' && !collection && (
+        <p
+          aria-live="polite"
+          className="pointer-events-none absolute top-5 left-4 rounded-full bg-paper/90 px-3 py-2 text-xs text-ink"
+        >
+          {plotMonths[region]} 정원 · 두 달 산책 미리보기
+        </p>
+      )}
       <p
         role="status"
         className={
@@ -239,7 +252,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
       {available && ready && view === 'garden' && !collection && (
         <>
           {!hasMoved && (
-            <p className="pointer-events-none absolute inset-x-4 top-5 text-center text-xs text-ink">
+            <p className="pointer-events-none absolute inset-x-4 bottom-36 text-center text-xs text-ink sm:top-5 sm:bottom-auto">
               <span className="[@media(pointer:coarse)]:hidden">방향키 또는 WASD로 이동</span>
               <span className="[@media(pointer:fine)]:hidden">조이스틱으로 이동</span>
             </p>
@@ -257,7 +270,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           {nearShelf && (
             <p
               aria-hidden="true"
-              className="pointer-events-none absolute inset-x-4 top-5 text-center text-xs text-ink"
+              className="pointer-events-none absolute inset-x-4 bottom-36 text-center text-xs text-ink sm:top-5 sm:bottom-auto"
             >
               책장을 눌러 살펴보기
             </p>

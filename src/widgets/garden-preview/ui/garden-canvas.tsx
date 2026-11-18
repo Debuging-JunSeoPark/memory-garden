@@ -1,13 +1,16 @@
 'use client';
 
-import { Canvas, useThree } from '@react-three/fiber';
+import { MathUtils, type OrthographicCamera as ThreeCamera } from 'three';
+import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei/core/ContactShadows';
 import { OrthographicCamera } from '@react-three/drei/core/OrthographicCamera';
-import { useEffect } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import { GardenDiaryCorner } from './garden-diary-corner';
 import { GardenBookshelf } from './garden-bookshelf';
 import { GardenIsland } from './garden-island';
 import { GardenPlayer } from './garden-player';
+import { GardenNextPlot, GardenBridge } from './garden-next-plot';
+import type { GardenPosition } from './garden-plots';
 import { shelfPosition, type Direction } from './garden-walk';
 
 type SceneCallbacks = { onUnavailable: () => void; onReady: () => void };
@@ -17,8 +20,19 @@ function GardenCamera({
   onReady,
   shelf,
   diary,
-}: SceneCallbacks & { shelf: boolean; diary: boolean }) {
-  const { size, gl } = useThree();
+  positionRef,
+}: SceneCallbacks & { shelf: boolean; diary: boolean; positionRef: RefObject<GardenPosition> }) {
+  const { size, gl, invalidate } = useThree();
+  const cameraRef = useRef<ThreeCamera>(null);
+  useFrame((_, delta) => {
+    const camera = cameraRef.current;
+    if (!camera || shelf || diary) return;
+    const targetX = Math.min(0, positionRef.current.x + 1.5);
+    const x = MathUtils.damp(camera.position.x - 6.5, targetX, 6, Math.min(delta, 0.05));
+    camera.position.set(6.5 + x, 6.8, 10);
+    camera.lookAt(x, 0.55, 0);
+    if (Math.abs(x - targetX) > 0.002) invalidate();
+  });
 
   useEffect(() => {
     const canvas = gl.domElement;
@@ -33,6 +47,7 @@ function GardenCamera({
 
   return (
     <OrthographicCamera
+      ref={cameraRef}
       makeDefault
       position={diary ? [0, 8, 5] : shelf ? [2, 2.1, 4] : [6.5, 6.8, 10]}
       near={0.1}
@@ -44,7 +59,7 @@ function GardenCamera({
       onUpdate={(camera) => {
         if (diary) camera.lookAt(0, 0, 0);
         else if (shelf) camera.lookAt(shelfPosition.x, 1.14, shelfPosition.z);
-        else camera.lookAt(0, 0.55, 0);
+        else camera.lookAt(camera.position.x - 6.5, 0.55, 0);
       }}
     />
   );
@@ -54,6 +69,7 @@ export function GardenCanvas({
   onUnavailable,
   onReady,
   onOpenGuide,
+  onRegionChange,
   months,
   dates,
   onOpenMonth,
@@ -71,6 +87,7 @@ export function GardenCanvas({
   shelf,
 }: SceneCallbacks & {
   onOpenGuide: () => void;
+  onRegionChange: (region: number) => void;
   months: string[];
   dates: string[];
   onOpenMonth: (month: string) => void;
@@ -87,6 +104,7 @@ export function GardenCanvas({
   nearShelf: boolean;
   shelf: boolean;
 }) {
+  const positionRef = useRef<GardenPosition>({ x: 0, z: 1.7 });
   return (
     <div className="h-full w-full" aria-hidden="true">
       <Canvas
@@ -98,7 +116,13 @@ export function GardenCanvas({
         gl={{ antialias: true, powerPreference: 'low-power' }}
         fallback={<span>정적 지도로도 정원을 둘러볼 수 있어요.</span>}
       >
-        <GardenCamera onUnavailable={onUnavailable} onReady={onReady} shelf={shelf} diary={diary} />
+        <GardenCamera
+          onUnavailable={onUnavailable}
+          onReady={onReady}
+          shelf={shelf}
+          diary={diary}
+          positionRef={positionRef}
+        />
         <hemisphereLight args={['#fff3dc', '#a8aa88', 2.4]} />
         <directionalLight
           position={[-3, 8, 4]}
@@ -113,6 +137,8 @@ export function GardenCanvas({
           shadow-radius={3}
         />
         <GardenPlayer
+          positionRef={positionRef}
+          onRegionChange={onRegionChange}
           active={walking}
           joystick={joystick}
           onNearShelf={onNearShelf}
@@ -126,13 +152,17 @@ export function GardenCanvas({
         ) : shelf ? (
           <GardenBookshelf months={months} onOpenGuide={onOpenGuide} onOpenMonth={onOpenMonth} />
         ) : (
-          <GardenIsland
-            months={months}
-            dates={dates}
-            onOpenMemory={onOpenMemory}
-            onOpenShelf={nearShelf ? onOpenShelf : undefined}
-            onOpenDiary={nearWritingPlace ? onOpenDiary : undefined}
-          />
+          <>
+            <GardenNextPlot />
+            <GardenBridge />
+            <GardenIsland
+              months={months}
+              dates={dates}
+              onOpenMemory={onOpenMemory}
+              onOpenShelf={nearShelf ? onOpenShelf : undefined}
+              onOpenDiary={nearWritingPlace ? onOpenDiary : undefined}
+            />
+          </>
         )}
         {!shelf && !diary && (
           <ContactShadows

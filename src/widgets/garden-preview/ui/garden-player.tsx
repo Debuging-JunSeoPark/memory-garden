@@ -1,5 +1,6 @@
+import { gardenRegion, playerRadius, type GardenPosition } from './garden-plots';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import type { Group } from 'three';
 import {
   directionKeys,
@@ -13,6 +14,8 @@ import {
 
 export function GardenPlayer({
   active,
+  positionRef,
+  onRegionChange,
   joystick,
   onNearShelf,
   onFirstMove,
@@ -21,6 +24,8 @@ export function GardenPlayer({
   onOpenDiary,
 }: {
   active: boolean;
+  positionRef: RefObject<GardenPosition>;
+  onRegionChange: (region: number) => void;
   joystick: Direction;
   onNearShelf: (near: boolean) => void;
   onFirstMove: () => void;
@@ -28,6 +33,7 @@ export function GardenPlayer({
   onNearWritingPlace: (near: boolean) => void;
   onOpenDiary: () => void;
 }) {
+  const region = useRef(0);
   const model = useRef<Group>(null);
   const keys = useRef(new Set<string>());
   const nearby = useRef(false);
@@ -99,6 +105,13 @@ export function GardenPlayer({
     player.position.x = next.x;
     player.position.z = next.z;
     player.rotation.y = next.heading;
+    positionRef.current.x = next.x;
+    positionRef.current.z = next.z;
+    const nextRegion = gardenRegion(next.x, region.current);
+    if (nextRegion !== region.current) {
+      region.current = nextRegion;
+      onRegionChange(nextRegion);
+    }
     const near = isNearShelf(next);
     if (near !== nearby.current) {
       nearby.current = near;
@@ -115,7 +128,7 @@ export function GardenPlayer({
   return (
     <group ref={model} visible={active} position={[spawnPosition.x, 0.17, spawnPosition.z]}>
       <mesh position={[0, 0.29, 0]} castShadow>
-        <capsuleGeometry args={[0.15, 0.15, 4, 10]} />
+        <capsuleGeometry args={[playerRadius, 0.15, 4, 10]} />
         <meshStandardMaterial color="#d39066" />
       </mesh>
       <mesh position={[0, 0.59, 0.01]} castShadow>

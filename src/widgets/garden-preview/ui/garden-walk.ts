@@ -1,3 +1,4 @@
+import { bridge, isOnGardenGround, nextPlotX, playerRadius } from './garden-plots';
 export type Direction = { x: number; y: number };
 type Position = { x: number; z: number };
 
@@ -23,6 +24,12 @@ const trunks = [
 ];
 
 const obstacles = [
+  ...[-bridge.railZ, bridge.railZ].map((z) => ({
+    x: nextPlotX / 2,
+    z,
+    halfWidth: bridge.railLength / 2 + playerRadius,
+    halfDepth: bridge.railWidth / 2 + playerRadius,
+  })),
   { ...writingPosition, halfWidth: 0.4, halfDepth: 0.32 },
   { ...shelfPosition, halfWidth: 0.96, halfDepth: 0.59 },
   { x: -1.45, z: 0.65, halfWidth: 0.74, halfDepth: 0.43 },
@@ -31,8 +38,9 @@ const obstacles = [
 
 function canWalk(x: number, z: number) {
   return (
-    Math.hypot(x, z) <= 2.98 &&
+    isOnGardenGround(x, z) &&
     !trunks.some((tree) => Math.hypot(x - tree.x, z - tree.z) < tree.radius) &&
+    Math.hypot(x - (nextPlotX - 1.5), z + 1.2) >= 0.5 &&
     !obstacles.some(
       (item) => Math.abs(x - item.x) < item.halfWidth && Math.abs(z - item.z) < item.halfDepth,
     )

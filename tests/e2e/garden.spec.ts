@@ -200,3 +200,52 @@ test('collects selected monthly entries in date order and keeps selection when r
   await gather.click();
   await expect(collection.getByRole('heading', { name: /^2026-/ })).toHaveText(['2026-11-01']);
 });
+
+test('walks over the bridge to the next monthly plot and returns', async ({ page }, testInfo) => {
+  await page.goto('/garden');
+  await expect(page.getByRole('status')).toContainText('일기장');
+  const month = page.getByText(/정원 · 두 달 산책 미리보기/);
+  const firstMonth = await month.innerText();
+  await page.screenshot({ path: testInfo.outputPath('two-months-start.png') });
+
+  if (testInfo.project.name === 'mobile') {
+    const stick = await page.getByLabel('이동 조이스틱').boundingBox();
+    if (!stick) throw new Error('Joystick is unavailable');
+    const touch = await page.context().newCDPSession(page);
+    const point = (x: number, y: number) => [
+      { x: stick.x + stick.width * x, y: stick.y + stick.height * y },
+    ];
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: point(0.5, 0.167),
+    });
+    await page.waitForTimeout(850);
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: point(0.167, 0.167),
+    });
+    await expect(month).not.toHaveText(firstMonth, { timeout: 15000 });
+    await page.screenshot({ path: testInfo.outputPath('two-months-arrival.png') });
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: point(0.833, 0.833),
+    });
+    await expect(month).toHaveText(firstMonth, { timeout: 15000 });
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await touch.detach();
+  } else {
+    await page.keyboard.down('ArrowUp');
+    await page.waitForTimeout(850);
+    await page.keyboard.down('ArrowLeft');
+    await expect(month).not.toHaveText(firstMonth, { timeout: 15000 });
+    await page.screenshot({ path: testInfo.outputPath('two-months-arrival.png') });
+    await page.keyboard.up('ArrowLeft');
+    await page.keyboard.up('ArrowUp');
+    await page.keyboard.down('ArrowDown');
+    await page.keyboard.down('ArrowRight');
+    await expect(month).toHaveText(firstMonth, { timeout: 15000 });
+    await page.keyboard.up('ArrowRight');
+    await page.keyboard.up('ArrowDown');
+  }
+  await expect(page.getByRole('status')).toContainText('정원을 둘러볼 수 있어요.');
+});
