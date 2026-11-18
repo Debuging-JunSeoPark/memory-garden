@@ -69,3 +69,27 @@ export async function readDiaryMonths() {
 
   return Array.from(months, ([month, dates]) => ({ month, dates }));
 }
+
+export async function addDiarySamples(drafts: DiaryDraft[]) {
+  const database = await openDiaryDatabase();
+  try {
+    return await new Promise<number>((resolve, reject) => {
+      const transaction = database.transaction(storeName, 'readwrite');
+      const store = transaction.objectStore(storeName);
+      let added = 0;
+      for (const draft of drafts) {
+        const request = store.getKey(draft.date);
+        request.onsuccess = () => {
+          if (request.result === undefined) {
+            store.add(draft);
+            added += 1;
+          }
+        };
+      }
+      transaction.oncomplete = () => resolve(added);
+      transaction.onabort = () => reject(transaction.error ?? new Error('Sample import aborted.'));
+    });
+  } finally {
+    database.close();
+  }
+}

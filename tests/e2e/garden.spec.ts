@@ -129,3 +129,74 @@ test('opens stored entries from monthly books and paged daily flowers on the map
   await page.getByRole('button', { name: '닫기', exact: true }).click();
   await expect(month).toBeFocused();
 });
+
+test('collects selected monthly entries in date order and keeps selection when returning', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, ...args: Parameters<typeof original>) {
+      if (['webgl', 'webgl2', 'experimental-webgl'].includes(args[0])) return null;
+      return original.apply(this, args);
+    } as typeof original;
+    const get = IDBObjectStore.prototype.get;
+    let failOnce = true;
+    IDBObjectStore.prototype.get = function (key: IDBValidKey | IDBKeyRange) {
+      const request = get.call(this, key);
+      if (key === '2026-11-02' && failOnce) {
+        failOnce = false;
+        request.addEventListener('success', () => this.transaction.abort());
+      }
+      return request;
+    };
+  });
+  await page.goto('/garden');
+  await page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('memory-garden-diary', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('entries', { keyPath: 'date' });
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const bytes = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lV0AAAAASUVORK5CYII='), (char) => char.charCodeAt(0));
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction('entries', 'readwrite');
+      for (let day = 1; day <= 15; day += 1) {
+        const date = `2026-11-${String(day).padStart(2, '0')}`;
+        transaction.objectStore('entries').put({
+          date, title: `${day}일 제목`, body: `${day}일 본문`,
+          photos: day === 1 ? [{ id: 'sample', file: new File([bytes], 'sample.png', { type: 'image/png' }), description: '검수용 사진' }] : [],
+        });
+      }
+      transaction.oncomplete = () => resolve();
+      transaction.onabort = () => reject(transaction.error);
+    });
+    db.close();
+  });
+  await page.reload();
+  await page.getByRole('button', { name: '지도에서 책장 열기' }).click();
+  await page.getByRole('button', { name: '2026년 11월 책' }).click();
+  const gather = page.getByRole('button', { name: '선택한 기록 모아보기', exact: true });
+  await expect(gather).toBeDisabled();
+  for (let day = 1; day <= 14; day += 1) {
+    await page.getByRole('checkbox', { name: `2026-11-${String(day).padStart(2, '0')} 선택` }).check();
+  }
+  await expect(page.getByRole('checkbox', { name: '2026-11-15 선택' })).toBeDisabled();
+  for (let day = 3; day <= 14; day += 1) {
+    await page.getByRole('checkbox', { name: `2026-11-${String(day).padStart(2, '0')} 선택` }).uncheck();
+  }
+  await gather.click();
+  const collection = page.getByRole('article', { name: '선택한 기록 모아보기' });
+  await expect(collection.getByRole('heading', { name: /^2026-/ })).toHaveText(['2026-11-01', '2026-11-02']);
+  await expect(collection).toContainText('1일 본문');
+  const image = collection.getByRole('img', { name: '검수용 사진' });
+  await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBe(1);
+  const failedEntry = collection.getByRole('region', { name: '2026-11-02' });
+  await expect(failedEntry.getByRole('alert')).toBeVisible();
+  await failedEntry.getByRole('button', { name: '다시 불러오기' }).click();
+  await expect(failedEntry).toContainText('2일 본문');
+  await collection.getByRole('button', { name: '날짜 선택으로' }).click();
+  await expect(page.getByRole('checkbox', { name: '2026-11-01 선택' })).toBeChecked();
+  await expect(page.getByRole('checkbox', { name: '2026-11-02 선택' })).toBeChecked();
+  await page.getByRole('checkbox', { name: '2026-11-02 선택' }).uncheck();
+  await gather.click();
+  await expect(collection.getByRole('heading', { name: /^2026-/ })).toHaveText(['2026-11-01']);
+});
