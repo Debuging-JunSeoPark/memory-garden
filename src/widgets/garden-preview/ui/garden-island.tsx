@@ -1,9 +1,12 @@
 import { GardenBookshelf } from './garden-bookshelf';
 import { GardenWritingPlace } from './garden-writing-place';
 
+import type { GardenTheme } from './garden-plots';
+import { GardenSeason } from './garden-season';
+
 type Point = [number, number, number];
 
-function Tree({ position, scale = 1 }: { position: Point; scale?: number }) {
+function Tree({ position, scale = 1, color }: { position: Point; scale?: number; color: string }) {
   return (
     <group position={position} scale={scale}>
       <mesh position={[0, 0.8, 0]} castShadow>
@@ -12,15 +15,15 @@ function Tree({ position, scale = 1 }: { position: Point; scale?: number }) {
       </mesh>
       <mesh position={[0, 1.95, 0]} castShadow>
         <icosahedronGeometry args={[0.85, 1]} />
-        <meshStandardMaterial color="#78975b" flatShading />
+        <meshStandardMaterial color={color} flatShading />
       </mesh>
       <mesh position={[-0.45, 1.55, 0.16]} castShadow>
         <icosahedronGeometry args={[0.65, 0]} />
-        <meshStandardMaterial color="#8da569" flatShading />
+        <meshStandardMaterial color={color} flatShading />
       </mesh>
       <mesh position={[0.47, 1.7, 0]} castShadow>
         <icosahedronGeometry args={[0.61, 0]} />
-        <meshStandardMaterial color="#6b8b52" flatShading />
+        <meshStandardMaterial color={color} flatShading />
       </mesh>
     </group>
   );
@@ -51,7 +54,7 @@ function Bench() {
 
 const petalAngles = [0, 1.26, 2.51, 3.77, 5.03];
 
-function Flower({
+export function GardenFlower({
   position,
   color,
   onOpen,
@@ -95,12 +98,14 @@ function Flower({
 }
 
 export function GardenIsland({
+  theme,
   onOpenShelf,
   onOpenDiary,
   months,
   dates,
   onOpenMemory,
 }: {
+  theme: GardenTheme;
   onOpenShelf?: () => void;
   onOpenDiary?: () => void;
   months: string[];
@@ -119,7 +124,7 @@ export function GardenIsland({
       </mesh>
       <mesh position={[0, 0.07, 0]} receiveShadow>
         <cylinderGeometry args={[3.24, 3.25, 0.09, 32]} />
-        <meshStandardMaterial color="#a3b97b" flatShading />
+        <meshStandardMaterial color={theme.ground} flatShading />
       </mesh>
       {[-1.52, -0.96, -0.38, 0.19, 0.77, 1.38, 2, 2.55].map((z, i) => (
         <mesh
@@ -133,8 +138,9 @@ export function GardenIsland({
           <meshStandardMaterial color={i % 2 ? '#dccfb3' : '#e8dcc1'} flatShading />
         </mesh>
       ))}
-      <Tree position={[-1.55, 0.12, -1.2]} />
-      <Tree position={[2.05, 0.12, -1.24]} scale={0.61} />
+      <GardenSeason theme={theme} />
+      <Tree position={[-1.55, 0.12, -1.2]} color={theme.leaves} />
+      <Tree position={[2.05, 0.12, -1.24]} scale={0.61} color={theme.leaves} />
       <GardenBookshelf months={months} onOpenShelf={onOpenShelf} />
       <GardenWritingPlace onOpen={onOpenDiary} />
       <Bench />
@@ -155,10 +161,10 @@ export function GardenIsland({
         </mesh>
       ))}
       {dates.slice(0, 6).map((date, index) => (
-        <Flower
+        <GardenFlower
           key={date}
           position={[1.27 + (index % 2) * 0.5, 0.22, 0.2 + Math.floor(index / 2) * 0.5]}
-          color={index % 2 ? '#e6ad9b' : '#efd18a'}
+          color={index % 2 ? theme.accent : '#efd18a'}
           onOpen={() => onOpenMemory(date)}
         />
       ))}

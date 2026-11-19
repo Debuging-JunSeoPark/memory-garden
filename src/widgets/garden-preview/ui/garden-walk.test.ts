@@ -1,34 +1,41 @@
 import { describe, expect, it } from 'vitest';
-import { gardenRegion, isOnGardenGround, nextPlotX, previewMonths } from './garden-plots';
+import { createGardenPlots, gardenRegion, isOnGardenGround } from './garden-plots';
 import { walk, isNearShelf, isNearWritingPlace } from './garden-walk';
+
+const plots = createGardenPlots(new Date(2026, 1, 18)).map((plot, index) => ({
+  ...plot,
+  x: index === 0 ? -8 : 0,
+  z: 0,
+}));
+const nextPlotX = -8;
 
 describe('connected monthly ground', () => {
   it('allows a full round trip over the bridge', () => {
     let position = { x: 0, z: 0 };
     const west = { x: -0.838, y: -0.545 };
     for (let step = 0; step < 75; step += 1) {
-      position = walk(position, west, 0.05);
-      expect(isOnGardenGround(position.x, position.z)).toBe(true);
+      position = walk(position, west, 0.05, plots);
+      expect(isOnGardenGround(position.x, position.z, plots)).toBe(true);
     }
     expect(position.x).toBeLessThan(nextPlotX + 0.5);
     expect(isNearShelf(position)).toBe(false);
     expect(isNearWritingPlace(position)).toBe(false);
     for (let step = 0; step < 75; step += 1) {
-      position = walk(position, { x: 0.838, y: 0.545 }, 0.05);
+      position = walk(position, { x: 0.838, y: 0.545 }, 0.05, plots);
     }
     expect(position.x).toBeCloseTo(0, 4);
     expect(position.z).toBeCloseTo(0, 4);
   });
 
   it('keeps the player on bridge deck and inside both islands', () => {
-    expect(isOnGardenGround(-4, 0.54)).toBe(true);
-    expect(isOnGardenGround(-4, 0.55)).toBe(false);
-    expect(isOnGardenGround(-4, 2)).toBe(false);
-    const next = walk({ x: -4, z: 0.53 }, { x: -0.545, y: 0.838 }, 0.05);
+    expect(isOnGardenGround(-4, 0.54, plots)).toBe(true);
+    expect(isOnGardenGround(-4, 0.55, plots)).toBe(false);
+    expect(isOnGardenGround(-4, 2, plots)).toBe(false);
+    const next = walk({ x: -4, z: 0.53 }, { x: -0.545, y: 0.838 }, 0.05, plots);
     expect(next.z).toBe(0.53);
-    expect(isOnGardenGround(-11, 0)).toBe(false);
-    expect(isOnGardenGround(3, 0)).toBe(false);
-    const blocked = walk({ x: -9.5, z: -0.65 }, { x: 0.545, y: -0.838 }, 0.05);
+    expect(isOnGardenGround(-11, 0, plots)).toBe(false);
+    expect(isOnGardenGround(3, 0, plots)).toBe(false);
+    const blocked = walk({ x: -9.5, z: -0.65 }, { x: 0.545, y: -0.838 }, 0.05, plots);
     expect(blocked.z).toBe(-0.65);
   });
 
@@ -37,23 +44,18 @@ describe('connected monthly ground', () => {
       for (const sign of [-1, 1]) {
         let position = { x, z: sign * 0.5 };
         const direction = { x: -0.545 * sign, y: 0.838 * sign };
-        for (let step = 0; step < 10; step += 1) position = walk(position, direction, 0.05);
+        for (let step = 0; step < 10; step += 1) position = walk(position, direction, 0.05, plots);
         expect(position.z).toBe(sign * 0.5);
       }
     }
-    const outsideRailEnd = walk({ x: -2.3, z: 0.5 }, { x: -0.545, y: 0.838 }, 0.05);
+    const outsideRailEnd = walk({ x: -2.3, z: 0.5 }, { x: -0.545, y: 0.838 }, 0.05, plots);
     expect(outsideRailEnd.z).toBeGreaterThan(0.5);
   });
 
   it('changes months only after reaching land and keeps the last month on the bridge', () => {
-    expect(gardenRegion(-5.3, 0)).toBe(1);
-    expect(gardenRegion(-4, 1)).toBe(1);
-    expect(gardenRegion(-4, 0)).toBe(0);
-    expect(gardenRegion(-2.7, 1)).toBe(0);
-  });
-
-  it('labels the next calendar month across the year boundary', () => {
-    const months = previewMonths(new Date(2026, 11, 18));
-    expect(months).toEqual(['2026년 12월', '2027년 1월']);
+    expect(gardenRegion({ x: -5.3, z: 0 }, 1, plots)).toBe(0);
+    expect(gardenRegion({ x: -4, z: 0 }, 1, plots)).toBe(1);
+    expect(gardenRegion({ x: -4, z: 0 }, 0, plots)).toBe(0);
+    expect(gardenRegion({ x: -2.7, z: 0 }, 0, plots)).toBe(1);
   });
 });

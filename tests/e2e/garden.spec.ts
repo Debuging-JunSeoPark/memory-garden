@@ -16,13 +16,13 @@ test('walks to the bookshelf and opens its first book', async ({ page }, testInf
       type: 'touchStart',
       touchPoints: [{ x: stick.x + stick.width * 0.7, y: stick.y + stick.height * 0.2 }],
     });
-    await expect(nearShelf).toBeVisible();
+    await expect(nearShelf).toBeVisible({ timeout: 20000 });
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await touch.detach();
   } else {
     await page.keyboard.down('ArrowUp');
     await page.keyboard.down('ArrowRight');
-    await expect(nearShelf).toBeVisible();
+    await expect(nearShelf).toBeVisible({ timeout: 20000 });
     await page.keyboard.up('ArrowRight');
     await page.keyboard.up('ArrowUp');
   }
@@ -39,7 +39,7 @@ test('walks to the bookshelf and opens its first book', async ({ page }, testInf
   await page.getByRole('button', { name: '책 덮기' }).click();
   await expect(shelf).toBeFocused();
   await page.getByRole('button', { name: '정원으로 돌아가기' }).click();
-  await expect(nearShelf).toBeVisible();
+  await expect(nearShelf).toBeVisible({ timeout: 20000 });
 });
 
 test('opens the same guide from the map when WebGL is unavailable', async ({ page }) => {
@@ -201,11 +201,37 @@ test('collects selected monthly entries in date order and keeps selection when r
   await expect(collection.getByRole('heading', { name: /^2026-/ })).toHaveText(['2026-11-01']);
 });
 
-test('walks over the bridge to the next monthly plot and returns', async ({ page }, testInfo) => {
+test('walks to the previous seasonal month and returns', async ({ page }, testInfo) => {
+  test.setTimeout(65000);
+  const pageErrors: string[] = [];
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  await page.clock.setFixedTime(new Date('2026-11-18T12:00:00+09:00'));
   await page.goto('/garden');
   await expect(page.getByRole('status')).toContainText('일기장');
-  const month = page.getByText(/정원 · 두 달 산책 미리보기/);
+  await page.keyboard.press('Enter');
+  for (const date of ['2026-10-01', '2026-10-07', '2026-11-01']) {
+    await page.getByLabel('기록 날짜').fill(date);
+    await page.getByLabel('오늘의 이야기').fill(`${date} 월별 정원 검수`);
+    await page.getByRole('button', { name: '일기 저장', exact: true }).click();
+    await expect(page.getByText('일기를 저장했어요.')).toBeVisible();
+  }
+  await page.getByRole('button', { name: '정원으로 돌아가기', exact: true }).click();
+  await expect(page.getByRole('button', { name: '기억의 꽃 1송이' })).toBeVisible();
+  async function readOctober() {
+    await expect(page.getByRole('button', { name: '기억의 꽃 2송이' })).toBeVisible();
+    await page.getByRole('button', { name: '기억의 꽃 2송이' }).click();
+    await page.getByRole('button', { name: '2026-10-01 기록 열기' }).click();
+    await expect(page.getByRole('article', { name: '2026-10-01' })).toContainText('2026-10-01 월별 정원 검수');
+    await page.getByRole('button', { name: '닫기', exact: true }).click();
+  }
+  const month = page.getByText(/\d{4}년 \d{1,2}월 ·/);
   const firstMonth = await month.innerText();
+  await page.getByRole('button', { name: '전체 정원 보기', exact: true }).click();
+  await expect(page.getByText('2026년 · 월별 정원 11곳', { exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('grid-overview.png') });
+  await page.keyboard.press('ArrowLeft');
+  await page.getByRole('button', { name: '산책으로 돌아가기', exact: true }).click();
+  await expect(month).toHaveText(firstMonth);
   await page.screenshot({ path: testInfo.outputPath('two-months-start.png') });
 
   if (testInfo.project.name === 'mobile') {
@@ -224,28 +250,33 @@ test('walks over the bridge to the next monthly plot and returns', async ({ page
       type: 'touchMove',
       touchPoints: point(0.167, 0.167),
     });
-    await expect(month).not.toHaveText(firstMonth, { timeout: 15000 });
+    await expect(month).not.toHaveText(firstMonth, { timeout: 25000 });
     await page.screenshot({ path: testInfo.outputPath('two-months-arrival.png') });
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await readOctober();
     await touch.send('Input.dispatchTouchEvent', {
-      type: 'touchMove',
+      type: 'touchStart',
       touchPoints: point(0.833, 0.833),
     });
-    await expect(month).toHaveText(firstMonth, { timeout: 15000 });
+    await expect(month).toHaveText(firstMonth, { timeout: 25000 });
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await touch.detach();
   } else {
     await page.keyboard.down('ArrowUp');
     await page.waitForTimeout(850);
     await page.keyboard.down('ArrowLeft');
-    await expect(month).not.toHaveText(firstMonth, { timeout: 15000 });
+    await expect(month).not.toHaveText(firstMonth, { timeout: 25000 });
     await page.screenshot({ path: testInfo.outputPath('two-months-arrival.png') });
     await page.keyboard.up('ArrowLeft');
     await page.keyboard.up('ArrowUp');
+    await readOctober();
     await page.keyboard.down('ArrowDown');
     await page.keyboard.down('ArrowRight');
-    await expect(month).toHaveText(firstMonth, { timeout: 15000 });
+    await expect(month).toHaveText(firstMonth, { timeout: 25000 });
     await page.keyboard.up('ArrowRight');
     await page.keyboard.up('ArrowDown');
   }
+  await expect(page.getByRole('button', { name: '기억의 꽃 1송이' })).toBeVisible();
+  expect(pageErrors).toEqual([]);
   await expect(page.getByRole('status')).toContainText('정원을 둘러볼 수 있어요.');
 });

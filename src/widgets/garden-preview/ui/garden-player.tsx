@@ -1,4 +1,4 @@
-import { gardenRegion, playerRadius, type GardenPosition } from './garden-plots';
+import { gardenRegion, playerRadius, type GardenPlot, type GardenPosition } from './garden-plots';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef, type RefObject } from 'react';
 import type { Group } from 'three';
@@ -14,6 +14,7 @@ import {
 
 export function GardenPlayer({
   active,
+  plots,
   positionRef,
   onRegionChange,
   joystick,
@@ -24,6 +25,7 @@ export function GardenPlayer({
   onOpenDiary,
 }: {
   active: boolean;
+  plots: GardenPlot[];
   positionRef: RefObject<GardenPosition>;
   onRegionChange: (region: number) => void;
   joystick: Direction;
@@ -33,7 +35,7 @@ export function GardenPlayer({
   onNearWritingPlace: (near: boolean) => void;
   onOpenDiary: () => void;
 }) {
-  const region = useRef(0);
+  const region = useRef(plots.length - 1);
   const model = useRef<Group>(null);
   const keys = useRef(new Set<string>());
   const nearby = useRef(false);
@@ -97,7 +99,7 @@ export function GardenPlayer({
       keys.current.size > 0 ? { x: Math.sign(keyboard.x), y: Math.sign(keyboard.y) } : joystick;
     if (!direction.x && !direction.y) return;
 
-    const next = walk(player.position, direction, delta);
+    const next = walk(player.position, direction, delta, plots);
     if (!moved.current && (next.x !== player.position.x || next.z !== player.position.z)) {
       moved.current = true;
       onFirstMove();
@@ -107,7 +109,7 @@ export function GardenPlayer({
     player.rotation.y = next.heading;
     positionRef.current.x = next.x;
     positionRef.current.z = next.z;
-    const nextRegion = gardenRegion(next.x, region.current);
+    const nextRegion = gardenRegion(next, region.current, plots);
     if (nextRegion !== region.current) {
       region.current = nextRegion;
       onRegionChange(nextRegion);
