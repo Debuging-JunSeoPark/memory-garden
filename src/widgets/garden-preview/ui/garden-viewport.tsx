@@ -1,5 +1,7 @@
 'use client';
 
+import { createGardenPlots } from './garden-plots';
+
 import dynamic from 'next/dynamic';
 import { DiaryEditor, DiaryMemory, readDiaryMonths } from '@/features/write-diary';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
@@ -62,6 +64,9 @@ function RecordPages({
 }
 
 export function GardenViewport({ children }: { children: ReactNode }) {
+  const [plots] = useState(createGardenPlots);
+  const [region, setRegion] = useState(() => plots.length - 1);
+  const [overview, setOverview] = useState(false);
   const [view, setView] = useState<'garden' | 'shelf' | 'book' | 'diary'>('garden');
   const [available, setAvailable] = useState(true);
   const [ready, setReady] = useState(false);
@@ -136,7 +141,10 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   }, [collection, memoryDate, gathering]);
 
   const refreshRecords = () => setRevision((previous) => previous + 1);
-  const dates = months.flatMap((month) => month.dates);
+  const activePlot = plots[region];
+  const dates = available
+    ? (months.find(({ month }) => month === activePlot.key)?.dates ?? [])
+    : months.flatMap((month) => month.dates);
   const shelfPages = Math.ceil(months.length / monthsPerShelf);
   const flowerPages = Math.ceil(dates.length / datesPerBed);
   const activeShelfPage = Math.min(shelfPage, Math.max(0, shelfPages - 1));
@@ -174,6 +182,10 @@ export function GardenViewport({ children }: { children: ReactNode }) {
     });
   }
 
+  const changeRegion = (next: number) => {
+    setRegion(next);
+    setFlowerPage(0);
+  };
   const map = <GardenMap onOpenShelf={openShelf} onOpenDiary={openDiary} />;
   return (
     <section
@@ -191,18 +203,23 @@ export function GardenViewport({ children }: { children: ReactNode }) {
             <GardenCanvas
               onUnavailable={showMap}
               onReady={markReady}
+              plots={plots}
+              region={region}
+              overview={overview}
+              records={months}
+              onRegionChange={changeRegion}
               onOpenGuide={openBook}
               months={visibleMonths.map(({ month }) => month)}
               dates={visibleDates}
               onOpenMonth={openCollection}
-              onOpenMemory={(date) => openCollection('flowers', date)}
+              onOpenMemory={(date) => openCollection(date.slice(0, 7), date)}
               onNearShelf={setNearShelf}
               onFirstMove={markMoved}
               onOpenShelf={openShelf}
               onOpenDiary={openDiary}
               onNearWritingPlace={setNearWritingPlace}
               nearWritingPlace={nearWritingPlace}
-              walking={view === 'garden' && !collection}
+              walking={view === 'garden' && !collection && !overview}
               diary={view === 'diary'}
               joystick={joystick}
               nearShelf={nearShelf}
@@ -218,6 +235,16 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           />
         ) : null}
       </div>
+      {view === 'garden' && !collection && (
+        <p
+          aria-live="polite"
+          className="pointer-events-none absolute top-5 left-4 rounded-full bg-paper/90 px-3 py-2 text-xs text-ink"
+        >
+          {overview
+            ? `${activePlot.key.slice(0, 4)}년 · 월별 정원 ${plots.length}곳`
+            : `${activePlot.label} · ${activePlot.theme.name}`}
+        </p>
+      )}
       <p
         role="status"
         className={
@@ -237,9 +264,22 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           : '정적 지도로 정원을 보고 있어요.'}
       </p>
       {available && ready && view === 'garden' && !collection && (
+        <button
+          type="button"
+          aria-pressed={overview}
+          className={`${controlClass} absolute top-5 right-4`}
+          onClick={() => {
+            setJoystick(still);
+            setOverview(!overview);
+          }}
+        >
+          {overview ? '산책으로 돌아가기' : '전체 정원 보기'}
+        </button>
+      )}
+      {available && ready && view === 'garden' && !collection && !overview && (
         <>
           {!hasMoved && (
-            <p className="pointer-events-none absolute inset-x-4 top-5 text-center text-xs text-ink">
+            <p className="pointer-events-none absolute inset-x-4 bottom-36 text-center text-xs text-ink sm:top-5 sm:bottom-auto">
               <span className="[@media(pointer:coarse)]:hidden">방향키 또는 WASD로 이동</span>
               <span className="[@media(pointer:fine)]:hidden">조이스틱으로 이동</span>
             </p>
@@ -257,7 +297,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           {nearShelf && (
             <p
               aria-hidden="true"
-              className="pointer-events-none absolute inset-x-4 top-5 text-center text-xs text-ink"
+              className="pointer-events-none absolute inset-x-4 bottom-36 text-center text-xs text-ink sm:top-5 sm:bottom-auto"
             >
               책장을 눌러 살펴보기
             </p>
@@ -311,7 +351,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
       )}
       {view === 'garden' && visibleDates.length > 0 && (
         <div
-          className="absolute top-12 right-4 grid justify-items-end gap-2"
+          className="absolute top-20 right-4 grid justify-items-end gap-2"
           inert={collection !== null}
         >
           <button type="button" className={controlClass} onClick={() => openCollection('flowers')}>

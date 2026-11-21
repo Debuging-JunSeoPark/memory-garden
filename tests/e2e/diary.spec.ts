@@ -47,6 +47,7 @@ test('adds photos with descriptions, keeps them across garden visits, and remove
     mimeType: 'image/png',
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lV0AAAAASUVORK5CYII=', 'base64'),
   };
+  await expect(page.getByLabel('사진 추가')).toBeEnabled();
   await page.getByLabel('사진 추가').setInputFiles([photo]);
   await expect(page.getByRole('img', { name: 'garden.png' })).toBeVisible();
   await page.getByLabel('사진 1 설명').fill('햇살이 비치는 정원');
@@ -55,8 +56,10 @@ test('adds photos with descriptions, keeps them across garden visits, and remove
   await expect(page.getByRole('img', { name: '햇살이 비치는 정원' })).toBeVisible();
   await page.getByRole('button', { name: '사진 1 삭제' }).click();
   await expect(page.getByRole('img', { name: '햇살이 비치는 정원' })).toHaveCount(0);
+  await expect(page.getByLabel('사진 추가')).toBeEnabled();
   await page.getByLabel('사진 추가').setInputFiles([photo]);
   await expect(page.getByRole('img', { name: 'garden.png' })).toBeVisible();
+  await expect(page.getByLabel('사진 추가')).toBeEnabled();
   await page.getByLabel('사진 추가').setInputFiles(
     Array.from({ length: 8 }, (_, index) => ({ ...photo, name: `extra-${index}.png` })),
   );
@@ -70,6 +73,7 @@ test('reports unsupported and damaged images without losing text', async ({ page
   await expect(page.getByRole('status')).toContainText('일기장');
   await page.keyboard.press('Enter');
   await page.getByLabel('오늘의 이야기').fill('사진을 고르는 중에도 이 문장은 남아요.');
+  await expect(page.getByLabel('사진 추가')).toBeEnabled();
   await page.getByLabel('사진 추가').setInputFiles([
     { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') },
     { name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('invalid image') },
@@ -96,6 +100,7 @@ test('keeps the photo loading operation active when the editor is closed and reo
   await page.goto('/garden');
   await expect(page.getByRole('status')).toContainText('일기장');
   await page.keyboard.press('Enter');
+  await expect(page.getByLabel('사진 추가')).toBeEnabled();
   await page.getByLabel('사진 추가').setInputFiles({
     name: 'loading.png',
     mimeType: 'image/png',
@@ -121,6 +126,7 @@ test('restores a dated entry with its photo after reload and persists edits', as
   await date.fill('2026-11-05');
   await title.fill('정원 기록');
   await body.fill('첫 번째 기록');
+  await expect(page.getByLabel('사진 추가')).toBeEnabled();
   await page.getByLabel('사진 추가').setInputFiles({
     name: 'garden.png',
     mimeType: 'image/png',

@@ -1,3 +1,11 @@
+import {
+  bridge,
+  bridgeCoordinates,
+  gardenBridges,
+  isOnGardenGround,
+  playerRadius,
+  type GardenPlot,
+} from './garden-plots';
 export type Direction = { x: number; y: number };
 type Position = { x: number; z: number };
 
@@ -29,10 +37,23 @@ const obstacles = [
   { x: 1.55, z: 0.7, halfWidth: 0.74, halfDepth: 0.99 },
 ];
 
-function canWalk(x: number, z: number) {
+function canWalk(x: number, z: number, plots: GardenPlot[]) {
   return (
-    Math.hypot(x, z) <= 2.98 &&
+    isOnGardenGround(x, z, plots) &&
     !trunks.some((tree) => Math.hypot(x - tree.x, z - tree.z) < tree.radius) &&
+    !plots
+      .slice(0, -1)
+      .some((plot) => Math.abs(x - (plot.x + 1.1)) < 0.7 && Math.abs(z - (plot.z + 1.4)) < 1) &&
+    !plots.slice(0, -1).some((plot) => Math.hypot(x - (plot.x - 1.5), z - (plot.z - 1.2)) < 0.5) &&
+    !gardenBridges(plots).some((link) => {
+      const { along, across } = bridgeCoordinates(x, z, link);
+      return (
+        Math.abs(along) < bridge.railLength / 2 + playerRadius &&
+        [-bridge.railZ, bridge.railZ].some(
+          (railZ) => Math.abs(across - railZ) < bridge.railWidth / 2 + playerRadius,
+        )
+      );
+    }) &&
     !obstacles.some(
       (item) => Math.abs(x - item.x) < item.halfWidth && Math.abs(z - item.z) < item.halfDepth,
     )
@@ -47,13 +68,13 @@ export function isNearWritingPlace({ x, z }: Position) {
   return Math.hypot(x - (writingPosition.x - 0.4), z - writingPosition.z) < 0.7;
 }
 
-export function walk(position: Position, direction: Direction, delta: number) {
+export function walk(position: Position, direction: Direction, delta: number, plots: GardenPlot[]) {
   const distance =
     (2.1 * Math.min(delta, 0.05)) / Math.max(1, Math.hypot(direction.x, direction.y));
   // The horizontal components of the fixed camera's right and forward axes.
   const dx = (direction.x * 0.838 + direction.y * 0.545) * distance;
   const dz = (-direction.x * 0.545 + direction.y * 0.838) * distance;
-  const x = canWalk(position.x + dx, position.z) ? position.x + dx : position.x;
-  const z = canWalk(x, position.z + dz) ? position.z + dz : position.z;
+  const x = canWalk(position.x + dx, position.z, plots) ? position.x + dx : position.x;
+  const z = canWalk(x, position.z + dz, plots) ? position.z + dz : position.z;
   return { x, z, heading: Math.atan2(dx, dz) };
 }
