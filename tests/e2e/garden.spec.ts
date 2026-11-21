@@ -251,8 +251,8 @@ test('walks to the previous seasonal month and returns', async ({ page }, testIn
       touchPoints: point(0.167, 0.167),
     });
     await expect(month).not.toHaveText(firstMonth, { timeout: 25000 });
-    await page.screenshot({ path: testInfo.outputPath('two-months-arrival.png') });
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.screenshot({ path: testInfo.outputPath('two-months-arrival.png') });
     await readOctober();
     await touch.send('Input.dispatchTouchEvent', {
       type: 'touchStart',
@@ -266,15 +266,13 @@ test('walks to the previous seasonal month and returns', async ({ page }, testIn
     await page.waitForTimeout(850);
     await page.keyboard.down('ArrowLeft');
     await expect(month).not.toHaveText(firstMonth, { timeout: 25000 });
+    await Promise.all([page.keyboard.up('ArrowLeft'), page.keyboard.up('ArrowUp')]);
     await page.screenshot({ path: testInfo.outputPath('two-months-arrival.png') });
-    await page.keyboard.up('ArrowLeft');
-    await page.keyboard.up('ArrowUp');
     await readOctober();
     await page.keyboard.down('ArrowDown');
     await page.keyboard.down('ArrowRight');
     await expect(month).toHaveText(firstMonth, { timeout: 25000 });
-    await page.keyboard.up('ArrowRight');
-    await page.keyboard.up('ArrowDown');
+    await Promise.all([page.keyboard.up('ArrowRight'), page.keyboard.up('ArrowDown')]);
   }
   await expect(page.getByRole('button', { name: '기억의 꽃 1송이' })).toBeVisible();
   expect(pageErrors).toEqual([]);
