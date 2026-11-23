@@ -223,9 +223,21 @@ test('walks to the previous seasonal month and returns', async ({ page }, testIn
     await page.getByRole('button', { name: '2026-10-01 기록 열기' }).click();
     await expect(page.getByRole('article', { name: '2026-10-01' })).toContainText('2026-10-01 월별 정원 검수');
     await page.getByRole('button', { name: '닫기', exact: true }).click();
+    await page.getByRole('button', { name: '전체 정원 보기', exact: true }).click();
+    await expect(page.getByText('2026년 · 월별 정원 11곳', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '산책으로 돌아가기', exact: true }).click();
+    await expect(page.getByText('2026년 10월 · 단풍의 정원', { exact: true })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('past-month-restored.png') });
   }
   const month = page.getByText(/\d{4}년 \d{1,2}월 ·/);
   const firstMonth = await month.innerText();
+  if (testInfo.project.name === 'mobile') {
+    await page.setViewportSize({ width: 320, height: 844 });
+    const label = await month.boundingBox();
+    const toggle = await page.getByRole('button', { name: '전체 정원 보기', exact: true }).boundingBox();
+    if (!label || !toggle) throw new Error('Garden controls unavailable');
+    expect(label.x + label.width).toBeLessThanOrEqual(toggle.x);
+  }
   await page.getByRole('button', { name: '전체 정원 보기', exact: true }).click();
   await expect(page.getByText('2026년 · 월별 정원 11곳', { exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('grid-overview.png') });

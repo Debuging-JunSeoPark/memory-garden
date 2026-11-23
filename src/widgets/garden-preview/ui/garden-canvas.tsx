@@ -1,11 +1,11 @@
 'use client';
 
-import { MathUtils, type OrthographicCamera as ThreeCamera } from 'three';
+import { MathUtils, Object3D, type OrthographicCamera as ThreeCamera } from 'three';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei/core/ContactShadows';
 import { OrthographicCamera } from '@react-three/drei/core/OrthographicCamera';
 import { GardenMonthLabel } from './garden-month-label';
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, type RefObject } from 'react';
 import { GardenDiaryCorner } from './garden-diary-corner';
 import { GardenBookshelf } from './garden-bookshelf';
 import { GardenIsland } from './garden-island';
@@ -13,6 +13,7 @@ import { GardenPlayer } from './garden-player';
 import { GardenNextPlot, GardenBridge } from './garden-next-plot';
 import { gardenBridges, type GardenPlot, type GardenPosition } from './garden-plots';
 import { shelfPosition, type Direction } from './garden-walk';
+import { cameraPosition, shadowFrame, type CameraPoint } from './garden-scene-view';
 
 type SceneCallbacks = { onUnavailable: () => void; onReady: () => void };
 
@@ -33,6 +34,7 @@ function GardenCamera({
 }) {
   const { size, gl, invalidate } = useThree();
   const cameraRef = useRef<ThreeCamera>(null);
+  const walkingPose = useRef<CameraPoint>([6.5, 6.8, 10]);
   const reducedMotion = useRef(false);
   const minX = Math.min(...plots.map((plot) => plot.x));
   const maxX = Math.max(...plots.map((plot) => plot.x));
@@ -40,6 +42,22 @@ function GardenCamera({
   const maxZ = Math.max(...plots.map((plot) => plot.z));
   const centerX = (minX + maxX) / 2;
   const centerZ = (minZ + maxZ) / 2;
+  useLayoutEffect(() => {
+    const camera = cameraRef.current;
+    if (!camera) return;
+    const position = cameraPosition(
+      diary ? 'diary' : shelf ? 'shelf' : overview ? 'overview' : 'walk',
+      walkingPose.current,
+      { x: centerX, z: centerZ },
+    );
+    camera.position.set(...position);
+    if (diary) camera.lookAt(0, 0, 0);
+    else if (shelf) camera.lookAt(shelfPosition.x, 1.14, shelfPosition.z);
+    else if (overview) camera.lookAt(centerX, 0.55, centerZ);
+    else camera.lookAt(position[0] - 6.5, 0.55, position[2] - 10);
+    invalidate();
+  }, [centerX, centerZ, diary, invalidate, overview, shelf]);
+
   useFrame((_, delta) => {
     const camera = cameraRef.current;
     if (!camera || shelf || diary || overview) return;
@@ -53,6 +71,9 @@ function GardenCamera({
       ? targetZ
       : MathUtils.damp(camera.position.z - 10, targetZ, 6, Math.min(delta, 0.05));
     camera.position.set(6.5 + x, 6.8, 10 + z);
+    walkingPose.current[0] = camera.position.x;
+    walkingPose.current[1] = camera.position.y;
+    walkingPose.current[2] = camera.position.z;
     camera.lookAt(x, 0.55, z);
     if (Math.hypot(x - targetX, z - targetZ) > 0.002) invalidate();
   });
@@ -82,15 +103,6 @@ function GardenCamera({
     <OrthographicCamera
       ref={cameraRef}
       makeDefault
-      position={
-        diary
-          ? [0, 8, 5]
-          : shelf
-            ? [2, 2.1, 4]
-            : overview
-              ? [centerX + 16.25, 17, centerZ + 25]
-              : [6.5, 6.8, 10]
-      }
       near={0.1}
       far={60}
       zoom={Math.min(
@@ -111,12 +123,6 @@ function GardenCamera({
                 ? Math.max(10, (maxZ - minZ) * 0.5 + (maxX - minX) * 0.35 + 9)
                 : 7.7),
       )}
-      onUpdate={(camera) => {
-        if (diary) camera.lookAt(0, 0, 0);
-        else if (shelf) camera.lookAt(shelfPosition.x, 1.14, shelfPosition.z);
-        else if (overview) camera.lookAt(centerX, 0.55, centerZ);
-        else camera.lookAt(camera.position.x - 6.5, 0.55, camera.position.z - 10);
-      }}
     />
   );
 }
@@ -175,6 +181,12 @@ export function GardenCanvas({
       : -1,
   );
   const links = gardenBridges(plots);
+  const shadow = shadowFrame(
+    plots,
+    shelf || diary ? plots.length - 1 : region,
+    !shelf && !diary && overview,
+  );
+  const lightTarget = useMemo(() => new Object3D(), []);
   return (
     <div className="h-full w-full" aria-hidden="true">
       <Canvas
@@ -196,18 +208,22 @@ export function GardenCanvas({
           overview={overview}
         />
         <hemisphereLight args={['#fff3dc', '#a8aa88', 2.4]} />
-        <directionalLight
-          position={[-3, 8, 4]}
-          intensity={2.5}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
-          shadow-camera-left={-5}
-          shadow-camera-right={5}
-          shadow-camera-top={5}
-          shadow-camera-bottom={-5}
-          shadow-normalBias={0.035}
-          shadow-radius={3}
-        />
+        <group position={[shadow.x, 0, shadow.z]}>
+          <primitive object={lightTarget} />
+          <directionalLight
+            target={lightTarget}
+            position={[-3, 8, 4]}
+            intensity={2.5}
+            castShadow
+            shadow-mapSize={[1024, 1024]}
+            shadow-camera-left={-shadow.radius}
+            shadow-camera-right={shadow.radius}
+            shadow-camera-top={shadow.radius}
+            shadow-camera-bottom={-shadow.radius}
+            shadow-normalBias={0.035}
+            shadow-radius={3}
+          />
+        </group>
         <GardenPlayer
           positionRef={positionRef}
           plots={plots}
@@ -259,12 +275,13 @@ export function GardenCanvas({
         )}
         {!shelf && !diary && (
           <ContactShadows
-            position={[0, -0.66, 0]}
+            key={overview ? 'overview' : plots[region].key}
+            position={[shadow.x, -0.66, shadow.z]}
             opacity={0.28}
-            scale={12}
+            scale={shadow.scale}
             blur={2.4}
             far={5}
-            resolution={256}
+            resolution={shadow.resolution}
             frames={1}
             color="#65734b"
           />

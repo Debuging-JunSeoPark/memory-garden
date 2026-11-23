@@ -238,7 +238,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
       {view === 'garden' && !collection && (
         <p
           aria-live="polite"
-          className="pointer-events-none absolute top-5 left-4 rounded-full bg-paper/90 px-3 py-2 text-xs text-ink"
+          className="pointer-events-none absolute top-5 left-4 max-w-[calc(100%_-_11rem)] rounded-full bg-paper/90 px-3 py-2 text-xs leading-relaxed text-ink sm:max-w-none"
         >
           {overview
             ? `${activePlot.key.slice(0, 4)}년 · 월별 정원 ${plots.length}곳`
