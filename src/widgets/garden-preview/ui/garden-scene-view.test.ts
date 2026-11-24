@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cameraPosition, shadowFrame, type CameraPoint } from './garden-scene-view';
 import { createGardenPlots } from './garden-plots';
+import { shelfPosition } from './garden-layout';
 
 const plots = createGardenPlots(new Date(2026, 10, 21));
 
@@ -14,7 +15,10 @@ describe('garden view restoration', () => {
 
   it('keeps bookshelf and writing closeups separate from the walking pose', () => {
     const walking: CameraPoint = [13.5, 6.8, -12.5];
-    expect(cameraPosition('shelf', walking, { x: 0, z: 0 })).toEqual([2, 2.1, 4]);
+    const shelf = cameraPosition('shelf', walking, { x: 0, z: 0 });
+    expect(shelf[0] - shelfPosition.x).toBeCloseTo(1.78);
+    expect(shelf[1]).toBe(2.1);
+    expect(shelf[2] - shelfPosition.z).toBeCloseTo(6.12);
     expect(cameraPosition('diary', walking, { x: 0, z: 0 })).toEqual([0, 8, 5]);
     expect(cameraPosition('walk', walking, { x: 0, z: 0 })).toEqual(walking);
   });

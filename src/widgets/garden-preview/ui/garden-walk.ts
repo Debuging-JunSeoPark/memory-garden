@@ -6,12 +6,20 @@ import {
   playerRadius,
   type GardenPlot,
 } from './garden-plots';
+import {
+  bench,
+  homeFlowerbed,
+  monthFlowerbed,
+  mainTree,
+  smallTree,
+  shelfPosition,
+  writingPosition,
+} from './garden-layout';
+export { shelfPosition, writingPosition } from './garden-layout';
 export type Direction = { x: number; y: number };
 type Position = { x: number; z: number };
 
 export const still = { x: 0, y: 0 };
-export const shelfPosition = { x: 0.22, z: -2.12 };
-export const writingPosition = { x: 0.85, z: 2 };
 export const spawnPosition = { x: 0, z: 1.7 };
 
 export const directionKeys: Readonly<Record<string, Direction>> = {
@@ -25,16 +33,13 @@ export const directionKeys: Readonly<Record<string, Direction>> = {
   d: { x: 1, y: 0 },
 };
 
-const trunks = [
-  { x: -1.55, z: -1.2, radius: 0.4 },
-  { x: 2.05, z: -1.24, radius: 0.33 },
-];
+const trunks = [mainTree, smallTree];
 
 const obstacles = [
   { ...writingPosition, halfWidth: 0.4, halfDepth: 0.32 },
   { ...shelfPosition, halfWidth: 0.96, halfDepth: 0.59 },
-  { x: -1.45, z: 0.65, halfWidth: 0.74, halfDepth: 0.43 },
-  { x: 1.55, z: 0.7, halfWidth: 0.74, halfDepth: 0.99 },
+  bench,
+  homeFlowerbed,
 ];
 
 function canWalk(x: number, z: number, plots: GardenPlot[]) {
@@ -43,8 +48,14 @@ function canWalk(x: number, z: number, plots: GardenPlot[]) {
     !trunks.some((tree) => Math.hypot(x - tree.x, z - tree.z) < tree.radius) &&
     !plots
       .slice(0, -1)
-      .some((plot) => Math.abs(x - (plot.x + 1.1)) < 0.7 && Math.abs(z - (plot.z + 1.4)) < 1) &&
-    !plots.slice(0, -1).some((plot) => Math.hypot(x - (plot.x - 1.5), z - (plot.z - 1.2)) < 0.5) &&
+      .some(
+        (plot) =>
+          Math.abs(x - (plot.x + monthFlowerbed.x)) < monthFlowerbed.halfWidth &&
+          Math.abs(z - (plot.z + monthFlowerbed.z)) < monthFlowerbed.halfDepth,
+      ) &&
+    !plots
+      .slice(0, -1)
+      .some((plot) => Math.hypot(x - (plot.x + mainTree.x), z - (plot.z + mainTree.z)) < 0.5) &&
     !gardenBridges(plots).some((link) => {
       const { along, across } = bridgeCoordinates(x, z, link);
       return (

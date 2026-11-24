@@ -1,6 +1,7 @@
 import { bridge, type GardenLink, type GardenPlot } from './garden-plots';
 import { GardenSeason } from './garden-season';
 import { GardenFlower } from './garden-island';
+import { mainTree, monthFlowerbed } from './garden-layout';
 
 export function GardenNextPlot({
   plot,
@@ -25,26 +26,24 @@ export function GardenNextPlot({
         <cylinderGeometry args={[3.24, 3.25, 0.09, 32]} />
         <meshStandardMaterial color={plot.theme.ground} roughness={1} />
       </mesh>
-      {[0, 1, 2, 3].map((index) => (
-        <mesh key={index} position={[2.65 - index * 0.65, 0.14, 0]} receiveShadow>
-          <cylinderGeometry args={[0.24, 0.28, 0.08, 8]} />
-          <meshStandardMaterial color="#e4dccb" />
-        </mesh>
-      ))}
       <GardenSeason theme={plot.theme} />
-      <mesh position={[1.1, 0.15, 1.4]} receiveShadow>
+      <mesh position={[monthFlowerbed.x, 0.15, monthFlowerbed.z]} receiveShadow>
         <boxGeometry args={[1.1, 0.1, 1.65]} />
         <meshStandardMaterial color="#9b8163" />
       </mesh>
       {dates.slice(0, 6).map((date, index) => (
         <GardenFlower
           key={date}
-          position={[0.82 + (index % 2) * 0.5, 0.22, 1 + Math.floor(index / 2) * 0.5]}
+          position={[
+            monthFlowerbed.x - 0.28 + (index % 2) * 0.5,
+            0.22,
+            monthFlowerbed.z - 0.4 + Math.floor(index / 2) * 0.5,
+          ]}
           color={index % 2 ? plot.theme.accent : '#ead7a6'}
           onOpen={() => onOpenMemory(date)}
         />
       ))}
-      <group position={[-1.5, 0.12, -1.2]}>
+      <group position={[mainTree.x, 0.12, mainTree.z]}>
         <mesh position={[0, 0.65, 0]} castShadow>
           <cylinderGeometry args={[0.11, 0.16, 1.3, 8]} />
           <meshStandardMaterial color="#8c7051" />

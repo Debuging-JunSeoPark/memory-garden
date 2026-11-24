@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createGardenPlots, gardenRegion, isOnGardenGround } from './garden-plots';
 import { walk, isNearShelf, isNearWritingPlace } from './garden-walk';
+import { homeFlowerbed, writingPosition } from './garden-layout';
 
 const plots = createGardenPlots(new Date(2026, 1, 18)).map((plot, index) => ({
   ...plot,
@@ -10,6 +11,19 @@ const plots = createGardenPlots(new Date(2026, 1, 18)).map((plot, index) => ({
 const nextPlotX = -8;
 
 describe('connected monthly ground', () => {
+  it('keeps the home flowerbed clear of the diary pedestal and island edge', () => {
+    // Scene fence bounds and the writing pedestal's radius 0.4 must not intersect.
+    const dx = Math.max(0, Math.abs(writingPosition.x - homeFlowerbed.x) - homeFlowerbed.width / 2);
+    const dz = Math.max(0, Math.abs(writingPosition.z - homeFlowerbed.z) - homeFlowerbed.depth / 2);
+    expect(Math.hypot(dx, dz)).toBeGreaterThan(0.4);
+    expect(
+      Math.hypot(
+        homeFlowerbed.x + homeFlowerbed.width / 2,
+        homeFlowerbed.z + homeFlowerbed.depth / 2,
+      ),
+    ).toBeLessThan(3.24);
+  });
+
   it('allows a full round trip over the bridge', () => {
     let position = { x: 0, z: 0 };
     const west = { x: -0.838, y: -0.545 };
@@ -35,7 +49,7 @@ describe('connected monthly ground', () => {
     expect(next.z).toBe(0.53);
     expect(isOnGardenGround(-11, 0, plots)).toBe(false);
     expect(isOnGardenGround(3, 0, plots)).toBe(false);
-    const blocked = walk({ x: -9.5, z: -0.65 }, { x: 0.545, y: -0.838 }, 0.05, plots);
+    const blocked = walk({ x: -6.1, z: -0.65 }, { x: 0.545, y: -0.838 }, 0.05, plots);
     expect(blocked.z).toBe(-0.65);
   });
 

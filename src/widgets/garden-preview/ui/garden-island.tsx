@@ -3,6 +3,7 @@ import { GardenWritingPlace } from './garden-writing-place';
 
 import type { GardenTheme } from './garden-plots';
 import { GardenSeason } from './garden-season';
+import { bench, homeFlowerbed, mainTree, smallTree } from './garden-layout';
 
 type Point = [number, number, number];
 
@@ -31,7 +32,7 @@ function Tree({ position, scale = 1, color }: { position: Point; scale?: number;
 
 function Bench() {
   return (
-    <group position={[-1.45, 0.12, 0.65]} rotation={[0, 0.15, 0]}>
+    <group position={[bench.x, 0.12, bench.z]} rotation={[0, 0.15, 0]}>
       {[-0.4, 0.4].map((x) => (
         <mesh key={x} position={[x, 0.19, 0]} castShadow>
           <boxGeometry args={[0.09, 0.38, 0.46]} />
@@ -126,51 +127,53 @@ export function GardenIsland({
         <cylinderGeometry args={[3.24, 3.25, 0.09, 32]} />
         <meshStandardMaterial color={theme.ground} flatShading />
       </mesh>
-      {[-1.52, -0.96, -0.38, 0.19, 0.77, 1.38, 2, 2.55].map((z, i) => (
-        <mesh
-          key={z}
-          position={[Math.sin(i * 0.7) * 0.24, 0.14, z]}
-          rotation={[0, i * 0.15, 0]}
-          castShadow
-          receiveShadow
-        >
-          <cylinderGeometry args={[0.3, 0.34, 0.09, 8]} />
-          <meshStandardMaterial color={i % 2 ? '#dccfb3' : '#e8dcc1'} flatShading />
-        </mesh>
-      ))}
       <GardenSeason theme={theme} />
-      <Tree position={[-1.55, 0.12, -1.2]} color={theme.leaves} />
-      <Tree position={[2.05, 0.12, -1.24]} scale={0.61} color={theme.leaves} />
+      <Tree position={[mainTree.x, 0.12, mainTree.z]} color={theme.leaves} />
+      <Tree position={[smallTree.x, 0.12, smallTree.z]} scale={0.61} color={theme.leaves} />
       <GardenBookshelf months={months} onOpenShelf={onOpenShelf} />
       <GardenWritingPlace onOpen={onOpenDiary} />
       <Bench />
-      <mesh position={[1.55, 0.15, 0.7]} receiveShadow>
-        <boxGeometry args={[1.05, 0.12, 1.55]} />
+      <mesh position={[homeFlowerbed.x, 0.15, homeFlowerbed.z]} receiveShadow>
+        <boxGeometry args={[homeFlowerbed.width - 0.15, 0.12, homeFlowerbed.depth - 0.12]} />
         <meshStandardMaterial color="#8d7957" />
       </mesh>
-      {[-0.56, 0.56].map((x) => (
-        <mesh key={x} position={[1.55 + x, 0.2, 0.7]} castShadow receiveShadow>
-          <boxGeometry args={[0.08, 0.16, 1.67]} />
+      {[-(homeFlowerbed.width - 0.08) / 2, (homeFlowerbed.width - 0.08) / 2].map((x) => (
+        <mesh
+          key={x}
+          position={[homeFlowerbed.x + x, 0.2, homeFlowerbed.z]}
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry args={[0.08, 0.16, homeFlowerbed.depth]} />
           <meshStandardMaterial color="#b38361" />
         </mesh>
       ))}
-      {[-0.79, 0.79].map((z) => (
-        <mesh key={z} position={[1.55, 0.2, 0.7 + z]} castShadow receiveShadow>
-          <boxGeometry args={[1.04, 0.16, 0.08]} />
+      {[-(homeFlowerbed.depth - 0.08) / 2, (homeFlowerbed.depth - 0.08) / 2].map((z) => (
+        <mesh
+          key={z}
+          position={[homeFlowerbed.x, 0.2, homeFlowerbed.z + z]}
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry args={[homeFlowerbed.width - 0.16, 0.16, 0.08]} />
           <meshStandardMaterial color="#b38361" />
         </mesh>
       ))}
       {dates.slice(0, 6).map((date, index) => (
         <GardenFlower
           key={date}
-          position={[1.27 + (index % 2) * 0.5, 0.22, 0.2 + Math.floor(index / 2) * 0.5]}
+          position={[
+            homeFlowerbed.x - 0.28 + (index % 2) * 0.5,
+            0.22,
+            homeFlowerbed.z - 0.45 + Math.floor(index / 2) * 0.45,
+          ]}
           color={index % 2 ? theme.accent : '#efd18a'}
           onOpen={() => onOpenMemory(date)}
         />
       ))}
       {[
-        [-2.35, 0.16, 0],
-        [2.3, 0.18, -0.4],
+        [-2.25, 0.16, -0.7],
+        [2.45, 0.18, -0.85],
         [-1.2, 0.14, 2],
       ].map((point, i) => (
         <mesh key={i} position={point as Point} scale={[0.35, 0.2, 0.28]} castShadow receiveShadow>
@@ -179,9 +182,9 @@ export function GardenIsland({
         </mesh>
       ))}
       {[
-        [-2.1, 0.12, 1.7],
-        [1.2, 0.12, 2.1],
-        [-0.7, 0.12, -2.5],
+        [-2.2, 0.12, 0.7],
+        [1.3, 0.12, 2.5],
+        [-1, 0.12, -2.5],
       ].map((point, i) => (
         <mesh key={i} position={point as Point} scale={[0.4, 0.3, 0.4]} castShadow>
           <icosahedronGeometry args={[0.6, 0]} />
