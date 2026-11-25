@@ -1,4 +1,5 @@
 import type { GardenPlot, GardenPosition } from './garden-plots';
+import { shelfPosition } from './garden-layout';
 
 export type CameraPoint = [number, number, number];
 
@@ -8,7 +9,7 @@ export function cameraPosition(
   center: GardenPosition,
 ): CameraPoint {
   if (view === 'overview') return [center.x + 16.25, 17, center.z + 25];
-  if (view === 'shelf') return [2, 2.1, 4];
+  if (view === 'shelf') return [shelfPosition.x + 1.78, 2.1, shelfPosition.z + 6.12];
   if (view === 'diary') return [0, 8, 5];
   return walking;
 }

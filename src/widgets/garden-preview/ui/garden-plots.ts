@@ -110,13 +110,24 @@ export function createGardenPlots(today = new Date()): GardenPlot[] {
 export type GardenLink = GardenPosition & { vertical: boolean; from: number; to: number };
 
 export function gardenBridges(plots: GardenPlot[]): GardenLink[] {
-  return plots.slice(1).map((plot, index) => ({
-    x: (plots[index].x + plot.x) / 2,
-    z: (plots[index].z + plot.z) / 2,
-    vertical: plots[index].x === plot.x,
-    from: index,
-    to: index + 1,
-  }));
+  const links: GardenLink[] = [];
+  for (let from = 0; from < plots.length; from += 1) {
+    for (let to = from + 1; to < plots.length; to += 1) {
+      const start = plots[from];
+      const end = plots[to];
+      const dx = Math.abs(start.x - end.x);
+      const dz = Math.abs(start.z - end.z);
+      if (!((dx === plotSpacing && dz === 0) || (dz === plotSpacing && dx === 0))) continue;
+      links.push({
+        x: (start.x + end.x) / 2,
+        z: (start.z + end.z) / 2,
+        vertical: dx === 0,
+        from,
+        to,
+      });
+    }
+  }
+  return links;
 }
 
 export function bridgeCoordinates(x: number, z: number, link: GardenLink) {

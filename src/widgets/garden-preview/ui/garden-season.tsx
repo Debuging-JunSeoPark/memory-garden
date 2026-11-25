@@ -10,7 +10,7 @@ export function GardenSeason({ theme }: { theme: GardenTheme }) {
         const radius = 1.2 + (index % 3) * 0.45;
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
-        if (Math.abs(z) < 0.7 || (x > 0.7 && z > 0)) return null;
+        if (Math.abs(z) < 0.7 || Math.abs(x) < 0.7 || (x > 0.7 && z > 0)) return null;
         return (
           <group key={index} position={[x, 0.14, z]} rotation-y={angle}>
             {winter ? (

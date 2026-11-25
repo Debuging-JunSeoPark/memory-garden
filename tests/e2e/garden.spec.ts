@@ -14,21 +14,20 @@ test('walks to the bookshelf and opens its first book', async ({ page }, testInf
     const touch = await page.context().newCDPSession(page);
     await touch.send('Input.dispatchTouchEvent', {
       type: 'touchStart',
-      touchPoints: [{ x: stick.x + stick.width * 0.7, y: stick.y + stick.height * 0.2 }],
+      touchPoints: [{ x: stick.x + stick.width * 0.5, y: stick.y + stick.height * 0.167 }],
     });
     await expect(nearShelf).toBeVisible({ timeout: 20000 });
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await touch.detach();
   } else {
     await page.keyboard.down('ArrowUp');
-    await page.keyboard.down('ArrowRight');
     await expect(nearShelf).toBeVisible({ timeout: 20000 });
-    await page.keyboard.up('ArrowRight');
     await page.keyboard.up('ArrowUp');
   }
 
   await page.keyboard.press('Enter');
   await expect(shelf).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('relocated-bookshelf-closeup.png') });
   await expect(page.getByRole('article', { name: '정원 안내서' })).toHaveCount(0);
   const tutorial = page.getByRole('button', { name: '정원 안내서 펼치기' });
   await expect(shelf).toBeFocused();
@@ -289,4 +288,71 @@ test('walks to the previous seasonal month and returns', async ({ page }, testIn
   await expect(page.getByRole('button', { name: '기억의 꽃 1송이' })).toBeVisible();
   expect(pageErrors).toEqual([]);
   await expect(page.getByRole('status')).toContainText('정원을 둘러볼 수 있어요.');
+});
+
+
+test('takes the new north shortcut from November to August and back', async ({ page }, testInfo) => {
+  test.setTimeout(65000);
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
+  await page.clock.setFixedTime(new Date('2026-11-24T12:00:00+09:00'));
+  await page.goto('/garden');
+  await expect(page.getByRole('status')).toContainText('일기장');
+  const month = page.getByText(/\d{4}년 \d{1,2}월 ·/);
+  await expect(month).toHaveText('2026년 11월 · 낙엽 쉬는 정원');
+  const visited = new Set<string>();
+
+  async function travel(target: string, north: boolean) {
+    if (testInfo.project.name === 'mobile') {
+      const stick = await page.getByLabel('이동 조이스틱').boundingBox();
+      if (!stick) throw new Error('Joystick is unavailable');
+      const touch = await page.context().newCDPSession(page);
+      const sign = north ? 1 : -1;
+      await touch.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [{
+          x: stick.x + stick.width * (0.5 + sign * 0.545 / 3),
+          y: stick.y + stick.height * (0.5 - sign * 0.838 / 3),
+        }],
+      });
+      try {
+        await expect(month).toHaveText(target, { timeout: 25000 });
+      } finally {
+        await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        await touch.detach();
+      }
+    } else {
+      // Alternate the two real keyboard directions to follow world north/south.
+      // Each short cycle stays within the narrow bridge instead of drifting east.
+      const forward = north ? 'ArrowUp' : 'ArrowDown';
+      const side = north ? 'ArrowRight' : 'ArrowLeft';
+      await page.keyboard.down(forward);
+      try {
+        for (let cycle = 0; cycle < 32; cycle += 1) {
+          visited.add(await month.innerText());
+          if ((await month.innerText()) === target) break;
+          await page.keyboard.down(side);
+          await page.waitForTimeout(450);
+          await page.keyboard.up(side);
+          await page.waitForTimeout(170);
+        }
+      } finally {
+        await Promise.all([page.keyboard.up(side), page.keyboard.up(forward)]);
+      }
+      await expect(month).toHaveText(target);
+    }
+  }
+
+  await travel('2026년 8월 · 한여름 햇살 정원', true);
+  await page.screenshot({ path: testInfo.outputPath('north-shortcut-august.png') });
+  await page.getByRole('button', { name: '전체 정원 보기', exact: true }).click();
+  await page.screenshot({ path: testInfo.outputPath('neighbor-paths-overview.png') });
+  await page.getByRole('button', { name: '산책으로 돌아가기', exact: true }).click();
+  await expect(month).toHaveText('2026년 8월 · 한여름 햇살 정원');
+  await travel('2026년 11월 · 낙엽 쉬는 정원', false);
+  expect([...visited].every((label) => label.includes('11월') || label.includes('8월'))).toBe(true);
+  expect(errors).toEqual([]);
 });

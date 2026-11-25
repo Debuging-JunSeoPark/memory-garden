@@ -5,6 +5,7 @@ import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei/core/ContactShadows';
 import { OrthographicCamera } from '@react-three/drei/core/OrthographicCamera';
 import { GardenMonthLabel } from './garden-month-label';
+import { GardenPaths } from './garden-paths';
 import { useEffect, useLayoutEffect, useMemo, useRef, type RefObject } from 'react';
 import { GardenDiaryCorner } from './garden-diary-corner';
 import { GardenBookshelf } from './garden-bookshelf';
@@ -251,6 +252,7 @@ export function GardenCanvas({
               return (
                 <group key={plot.key}>
                   {overview && <GardenMonthLabel plot={plot} />}
+                  <GardenPaths plot={plot} index={index} links={links} />
                   {index === plots.length - 1 ? (
                     <GardenIsland
                       theme={plot.theme}
@@ -269,7 +271,7 @@ export function GardenCanvas({
             {links
               .filter((link) => visible.includes(link.from) && visible.includes(link.to))
               .map((link) => (
-                <GardenBridge key={link.from} link={link} />
+                <GardenBridge key={`${link.from}-${link.to}`} link={link} />
               ))}
           </>
         )}
