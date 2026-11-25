@@ -165,7 +165,7 @@ export function GardenCanvas({
   onOpenMemory: (date: string) => void;
   onNearShelf: (near: boolean) => void;
   onFirstMove: () => void;
-  onOpenShelf: () => void;
+  onOpenShelf: (month: string) => void;
   onNearWritingPlace: (near: boolean) => void;
   onOpenDiary: () => void;
   nearWritingPlace: boolean;
@@ -249,6 +249,13 @@ export function GardenCanvas({
                 index === region
                   ? dates
                   : (records.find((record) => record.month === plot.key)?.dates.slice(0, 6) ?? []);
+              const localMonths = records.some((record) => record.month === plot.key)
+                ? [plot.key]
+                : [];
+              const openLocalShelf =
+                nearShelf && region === index && !overview
+                  ? () => onOpenShelf(plot.key)
+                  : undefined;
               return (
                 <group key={plot.key}>
                   {overview && <GardenMonthLabel plot={plot} />}
@@ -256,14 +263,20 @@ export function GardenCanvas({
                   {index === plots.length - 1 ? (
                     <GardenIsland
                       theme={plot.theme}
-                      months={months}
+                      months={localMonths}
                       dates={plotDates}
                       onOpenMemory={onOpenMemory}
-                      onOpenShelf={nearShelf && !overview ? onOpenShelf : undefined}
+                      onOpenShelf={openLocalShelf}
                       onOpenDiary={nearWritingPlace && !overview ? onOpenDiary : undefined}
                     />
                   ) : (
-                    <GardenNextPlot plot={plot} dates={plotDates} onOpenMemory={onOpenMemory} />
+                    <GardenNextPlot
+                      plot={plot}
+                      dates={plotDates}
+                      months={localMonths}
+                      onOpenShelf={openLocalShelf}
+                      onOpenMemory={onOpenMemory}
+                    />
                   )}
                 </group>
               );

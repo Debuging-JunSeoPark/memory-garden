@@ -35,16 +35,16 @@ export const directionKeys: Readonly<Record<string, Direction>> = {
 
 const trunks = [mainTree, smallTree];
 
-const obstacles = [
-  { ...writingPosition, halfWidth: 0.4, halfDepth: 0.32 },
-  { ...shelfPosition, halfWidth: 0.96, halfDepth: 0.59 },
-  bench,
-  homeFlowerbed,
-];
+const obstacles = [{ ...writingPosition, halfWidth: 0.4, halfDepth: 0.32 }, bench, homeFlowerbed];
 
 function canWalk(x: number, z: number, plots: GardenPlot[]) {
   return (
     isOnGardenGround(x, z, plots) &&
+    !plots.some(
+      (plot) =>
+        Math.abs(x - (plot.x + shelfPosition.x)) < 0.96 &&
+        Math.abs(z - (plot.z + shelfPosition.z)) < 0.59,
+    ) &&
     !trunks.some((tree) => Math.hypot(x - tree.x, z - tree.z) < tree.radius) &&
     !plots
       .slice(0, -1)
@@ -71,8 +71,8 @@ function canWalk(x: number, z: number, plots: GardenPlot[]) {
   );
 }
 
-export function isNearShelf({ x, z }: Position) {
-  return Math.hypot(x - shelfPosition.x, z - (shelfPosition.z + 0.83)) < 0.74;
+export function isNearShelf({ x, z }: Position, plot: Position) {
+  return Math.hypot(x - (plot.x + shelfPosition.x), z - (plot.z + shelfPosition.z + 0.83)) < 0.74;
 }
 
 export function isNearWritingPlace({ x, z }: Position) {

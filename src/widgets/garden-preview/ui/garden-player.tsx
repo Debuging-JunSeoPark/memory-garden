@@ -31,7 +31,7 @@ export function GardenPlayer({
   joystick: Direction;
   onNearShelf: (near: boolean) => void;
   onFirstMove: () => void;
-  onOpenShelf: () => void;
+  onOpenShelf: (month: string) => void;
   onNearWritingPlace: (near: boolean) => void;
   onOpenDiary: () => void;
 }) {
@@ -53,7 +53,7 @@ export function GardenPlayer({
         const target = event.target;
         if (!(target instanceof Element) || !target.closest('button, a, input, select, textarea')) {
           event.preventDefault();
-          if (nearby.current) onOpenShelf();
+          if (nearby.current) onOpenShelf(plots[region.current].key);
           else onOpenDiary();
         }
         return;
@@ -81,7 +81,7 @@ export function GardenPlayer({
       window.removeEventListener('blur', clear);
       document.removeEventListener('visibilitychange', clear);
     };
-  }, [active, invalidate, onOpenShelf, onOpenDiary]);
+  }, [active, invalidate, onOpenShelf, onOpenDiary, plots]);
 
   useEffect(() => {
     if (active) invalidate();
@@ -114,7 +114,7 @@ export function GardenPlayer({
       region.current = nextRegion;
       onRegionChange(nextRegion);
     }
-    const near = isNearShelf(next);
+    const near = isNearShelf(next, plots[nextRegion]);
     if (near !== nearby.current) {
       nearby.current = near;
       onNearShelf(near);
