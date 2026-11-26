@@ -2,15 +2,20 @@ import { bridge, type GardenLink, type GardenPlot } from './garden-plots';
 import { GardenSeason } from './garden-season';
 import { GardenFlower } from './garden-island';
 import { mainTree, monthFlowerbed } from './garden-layout';
+import { GardenBookshelf } from './garden-bookshelf';
 
 export function GardenNextPlot({
   plot,
   dates,
   onOpenMemory,
+  months,
+  onOpenShelf,
 }: {
   plot: GardenPlot;
   dates: string[];
   onOpenMemory: (date: string) => void;
+  months: string[];
+  onOpenShelf?: () => void;
 }) {
   return (
     <group position={[plot.x, 0, plot.z]}>
@@ -27,6 +32,7 @@ export function GardenNextPlot({
         <meshStandardMaterial color={plot.theme.ground} roughness={1} />
       </mesh>
       <GardenSeason theme={plot.theme} />
+      <GardenBookshelf months={months} onOpenShelf={onOpenShelf} />
       <mesh position={[monthFlowerbed.x, 0.15, monthFlowerbed.z]} receiveShadow>
         <boxGeometry args={[1.1, 0.1, 1.65]} />
         <meshStandardMaterial color="#9b8163" />

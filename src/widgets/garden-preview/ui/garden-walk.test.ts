@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createGardenPlots, gardenRegion, isOnGardenGround } from './garden-plots';
 import { walk, isNearShelf, isNearWritingPlace } from './garden-walk';
-import { homeFlowerbed, writingPosition } from './garden-layout';
+import { homeFlowerbed, writingPosition, shelfPosition } from './garden-layout';
 
 const plots = createGardenPlots(new Date(2026, 1, 18)).map((plot, index) => ({
   ...plot,
@@ -32,7 +32,7 @@ describe('connected monthly ground', () => {
       expect(isOnGardenGround(position.x, position.z, plots)).toBe(true);
     }
     expect(position.x).toBeLessThan(nextPlotX + 0.5);
-    expect(isNearShelf(position)).toBe(false);
+    expect(isNearShelf(position, plots[0])).toBe(false);
     expect(isNearWritingPlace(position)).toBe(false);
     for (let step = 0; step < 75; step += 1) {
       position = walk(position, { x: 0.838, y: 0.545 }, 0.05, plots);
@@ -71,5 +71,26 @@ describe('connected monthly ground', () => {
     expect(gardenRegion({ x: -4, z: 0 }, 1, plots)).toBe(1);
     expect(gardenRegion({ x: -4, z: 0 }, 0, plots)).toBe(0);
     expect(gardenRegion({ x: -2.7, z: 0 }, 0, plots)).toBe(1);
+  });
+});
+
+describe('bookshelves on every monthly land', () => {
+  const monthly = createGardenPlots(new Date(2026, 10, 25));
+  it('recognizes only the nearby local shelf in every opened month', () => {
+    for (const plot of monthly) {
+      const front = { x: plot.x + shelfPosition.x, z: plot.z + shelfPosition.z + 0.83 };
+      expect(isNearShelf(front, plot), plot.key).toBe(true);
+      const other = monthly.find((candidate) => candidate.key !== plot.key)!;
+      expect(isNearShelf(front, other), plot.key).toBe(false);
+      expect(isNearShelf({ x: plot.x, z: plot.z }, plot)).toBe(false);
+    }
+  });
+  it('blocks walking through every shelf while leaving its front accessible', () => {
+    for (const plot of monthly) {
+      const front = { x: plot.x + shelfPosition.x, z: plot.z + shelfPosition.z + 0.65 };
+      expect(walk(front, { x: 0.545, y: -0.838 }, 0.05, monthly), plot.key).toMatchObject(front);
+      const away = walk(front, { x: -0.545, y: 0.838 }, 0.05, monthly);
+      expect(away.z, plot.key).toBeGreaterThan(front.z);
+    }
   });
 });

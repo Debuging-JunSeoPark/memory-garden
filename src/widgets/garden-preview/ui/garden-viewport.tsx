@@ -1,6 +1,7 @@
 'use client';
 
 import { createGardenPlots } from './garden-plots';
+import { prioritizeShelfMonths } from './garden-shelf';
 
 import dynamic from 'next/dynamic';
 import { DiaryEditor, DiaryMemory, readDiaryMonths } from '@/features/write-diary';
@@ -78,7 +79,9 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   const [months, setMonths] = useState<Awaited<ReturnType<typeof readDiaryMonths>>>([]);
   const [revision, setRevision] = useState(0);
   const [recordsFailed, setRecordsFailed] = useState(false);
+  const [recordsLoaded, setRecordsLoaded] = useState(false);
   const [shelfPage, setShelfPage] = useState(0);
+  const [shelfMonth, setShelfMonth] = useState<string | null>(null);
   const [flowerPage, setFlowerPage] = useState(0);
   const [collection, setCollection] = useState<string | null>(null);
   const [memoryDate, setMemoryDate] = useState<string | null>(null);
@@ -97,10 +100,13 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   }, []);
   const markReady = useCallback(() => setReady(true), []);
   const markMoved = useCallback(() => setHasMoved(true), []);
-  const openShelf = useCallback(() => {
+  const openShelf = useCallback((month: string | null) => {
+    setShelfMonth(month);
+    setShelfPage(0);
     setJoystick(still);
     setView('shelf');
   }, []);
+  const openMapShelf = useCallback(() => openShelf(null), [openShelf]);
   const openDiary = useCallback(() => {
     setJoystick(still);
     setDiaryOpened(true);
@@ -125,10 +131,14 @@ export function GardenViewport({ children }: { children: ReactNode }) {
       (result) => {
         if (!current) return;
         setMonths(result);
+        setRecordsLoaded(true);
         setRecordsFailed(false);
       },
       () => {
-        if (current) setRecordsFailed(true);
+        if (current) {
+          setRecordsLoaded(false);
+          setRecordsFailed(true);
+        }
       },
     );
     return () => {
@@ -140,7 +150,11 @@ export function GardenViewport({ children }: { children: ReactNode }) {
     if (collection) overlayHeading.current?.focus({ preventScroll: true });
   }, [collection, memoryDate, gathering]);
 
-  const refreshRecords = () => setRevision((previous) => previous + 1);
+  const refreshRecords = () => {
+    setRecordsLoaded(false);
+    setRecordsFailed(false);
+    setRevision((previous) => previous + 1);
+  };
   const activePlot = plots[region];
   const dates = available
     ? (months.find(({ month }) => month === activePlot.key)?.dates ?? [])
@@ -149,7 +163,8 @@ export function GardenViewport({ children }: { children: ReactNode }) {
   const flowerPages = Math.ceil(dates.length / datesPerBed);
   const activeShelfPage = Math.min(shelfPage, Math.max(0, shelfPages - 1));
   const activeFlowerPage = Math.min(flowerPage, Math.max(0, flowerPages - 1));
-  const visibleMonths = months.slice(
+  const shelfMonths = prioritizeShelfMonths(months, shelfMonth);
+  const visibleMonths = shelfMonths.slice(
     activeShelfPage * monthsPerShelf,
     (activeShelfPage + 1) * monthsPerShelf,
   );
@@ -186,7 +201,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
     setRegion(next);
     setFlowerPage(0);
   };
-  const map = <GardenMap onOpenShelf={openShelf} onOpenDiary={openDiary} />;
+  const map = <GardenMap onOpenShelf={openMapShelf} onOpenDiary={openDiary} />;
   return (
     <section
       ref={stage}
@@ -228,7 +243,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           </SceneErrorBoundary>
         ) : view === 'garden' ? (
           <GardenMap
-            onOpenShelf={openShelf}
+            onOpenShelf={openMapShelf}
             onOpenDiary={openDiary}
             actionRef={action}
             writingRef={writingAction}
@@ -313,6 +328,14 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           >
             기억의 책장
           </h2>
+          {shelfMonth && (
+            <p className="absolute inset-x-4 top-14 text-center text-xs text-moss">
+              {monthLabel(shelfMonth)}의 책장
+              {recordsLoaded &&
+                !months.some(({ month }) => month === shelfMonth) &&
+                ' · 아직 이 달의 기록이 없어요.'}
+            </p>
+          )}
           <button
             type="button"
             className={
@@ -327,6 +350,7 @@ export function GardenViewport({ children }: { children: ReactNode }) {
           <div className="absolute inset-x-4 bottom-6 grid justify-items-center gap-2">
             {visibleMonths.length > 0 && (
               <div
+                role="group"
                 aria-label="월별 기록 책"
                 className="flex max-h-28 max-w-xl flex-wrap justify-center gap-2 overflow-auto rounded-xl bg-paper/90 p-2"
               >
