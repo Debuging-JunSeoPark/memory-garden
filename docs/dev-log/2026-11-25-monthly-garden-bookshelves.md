@@ -70,3 +70,6 @@ Node 26에서 최종 pnpm check가 통과했다. 전체 데스크톱·모바일 
 ![모바일의 8월 책장](assets/2026-11-25/august-shelf-mobile.png)
 
 ![선반에서 원래 8월 산책으로 복귀](assets/2026-11-25/august-walk-restored-mobile.png)
+
+
+11월 26일 후속: [모바일 책장 직접 탭 검증](2026-11-26-mobile-shelf-tap.md)에서 Enter를 우회하지 않는 실제 캔버스 탭 경로를 추가하고 재시도 없이 통과했다. 위 Minor 자동 검사 보완은 이 후속 변경에서 해결했다.

@@ -40,7 +40,7 @@ async function touchUntil(page: Page, x: number, y: number, arrived: () => Promi
   }
 }
 
-async function approachShelf(page: Page, mobile: boolean) {
+async function approachShelf(page: Page, mobile: boolean, tapShelf = false) {
   const near = page.getByRole('status').filter({ hasText: '책장에 도착했어요' });
   if (mobile) await touchUntil(page, 0, -1, () => expect(near).toBeVisible({ timeout: 20000 }));
   else {
@@ -51,7 +51,15 @@ async function approachShelf(page: Page, mobile: boolean) {
       await page.keyboard.up('ArrowUp');
     }
   }
-  await page.keyboard.press('Enter');
+  if (mobile && tapShelf) {
+    // Fixed iPhone viewport: tap the visible shelf body after approaching August.
+    // This must exercise the Three.js mesh handler, not the keyboard shortcut.
+    await page.screenshot({ path: test.info().outputPath('august-before-shelf-tap.png') });
+    const canvas = page.locator('canvas');
+    const bounds = await canvas.boundingBox();
+    if (!bounds) throw new Error('Garden canvas unavailable');
+    await canvas.tap({ position: { x: bounds.width * 0.51, y: bounds.height * 0.29 } });
+  } else await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: '기억의 책장', exact: true })).toBeVisible();
 }
 
@@ -100,7 +108,7 @@ test('reads local and other monthly books from the August land and restores its 
     await page.waitForTimeout(250);
     await Promise.all([page.keyboard.up('ArrowRight'), page.keyboard.up('ArrowUp')]);
   }
-  await approachShelf(page, testInfo.project.name === 'mobile');
+  await approachShelf(page, testInfo.project.name === 'mobile', true);
   await expect(page.getByText('2026년 8월의 책장', { exact: true })).toBeVisible();
   await expect(page.getByRole('article', { name: '정원 안내서' })).toHaveCount(0);
   const books = page.getByRole('group', { name: '월별 기록 책' }).getByRole('button');
